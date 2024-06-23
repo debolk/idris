@@ -23,6 +23,15 @@
 // send POST to "https://<LOGIN ADDRESS/IP?/bestuur/?access_token=<ACCESS_TOKEN>
 // it will reply 200 OK if the user is authorized
 
-const LOGIN_ADDRESS = "login.i.bolkhuis.nl"
-const AUTH_ADDRESS = "auth.debolk.nl"
+class Bolklogin extends API {
 
+    login() {
+
+        if ( !this.checkLoginState() ) {
+            location.replace(Bolklogin.LOGIN_ADDRESS + "authenticate?response_type=code&client_id" + Bolklogin.CLIENT_ID + "&redirect_uri=http://10.99.1.105:8008?state=" + this.getStateID());
+        }
+
+        return false;
+    }
+
+}
