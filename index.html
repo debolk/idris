@@ -1,1 +1,27 @@
-/opt/MeLODy/html/index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MeLODy - Member LDAP Overlay Dyrectory</title>
+
+  <script type="module" src="js/bolklogin.js"></script>
+</head>
+<body>
+
+<h1>MeLODy - Member LDAP Overlay Dyrectory</h1>
+<h8>A simple web application build to input and manage basic member information. <br>Makes use of BLIP to communicate with the LDAP server.</h8>
+<br><br>
+<button type="button" id="login">LOGIN</button>
+
+<script type="module">
+  import { Bolklogin } from "./js/bolklogin.js"
+
+  document.getElementById("login").onclick = () => {
+    console.log("CLICK");
+    Bolklogin.login();
+  }
+</script>
+
+</body>
+
+</html>

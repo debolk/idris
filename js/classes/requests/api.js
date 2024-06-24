@@ -1,19 +1,34 @@
-class API {
-    static VAR_NAMES = {"STATE_ID": "stateID", "ACCESS_TOKEN": "bolk-access-token", "REFRESH_TOKEN": "bolk-refresh-token"}
-    static LOGIN_ADDRESS = "http://10.99.1.105:8002/" //"login.i.bolkhuis.nl"
+import {Request} from "./request.js";
+
+export class API {
+    static VAR_NAMES = {"STATE": "state", "ACCESS_TOKEN": "access_token", "EXPIRES": "expires_in", "REFRESH_TOKEN": "refresh_token", "STATE_ID": "stateID", "ACCESS_TOKEN_STORAGE": "bolk-access-token", "REFRESH_TOKEN_STORAGE": "bolk-refresh-token"};
+    static LOGIN_ADDRESS = "http://10.99.1.105:8002/"; //"login.i.bolkhuis.nl"
+    static APP_ADDRESS = "http://10.99.1.105:8008/login";
 
     static CLIENT_SECRET = "bWVsb2R5NjR2bw==" //TODO: create better way to get secret
-    static CLIENT_ID = "melody_ldap"
+    static CLIENT_ID = "MeLODy"
 
-    getVariable(name) {
+    static getVariable(name) {
         return sessionStorage.getItem(name);
     }
 
-    setVariable(name, value) {
+    static setVariable(name, value) {
         sessionStorage.setItem(name, value.toString());
     }
 
-    getStateID() {
+    static getParameter(name) {
+        let query = location.search.substring(1);
+        let vars = query.split("&");
+        for (let i=0; i<vars.length; i++) {
+            let pair = vars[i].split("=");
+            if (pair[0] === name) {
+                return pair[1];
+            }
+        }
+        return null;
+    }
+
+    static getStateID() {
         if (sessionStorage.getItem(API.VAR_NAMES.STATE_ID) != null) {
             return sessionStorage.getItem(API.VAR_NAMES.STATE_ID);
         } else {
@@ -22,33 +37,14 @@ class API {
         }
     }
 
-    checkLoginState() {
+    static checkLoginState() {
         return this.getVariable(API.VAR_NAMES.ACCESS_TOKEN) != null;
     }
 
-    async checkAuthorization() {
+    static async checkAuthorization() {
         new Request(Request.RequestType.POST, API.LOGIN_ADDRESS += "bestuur/?access_token=" + this.getVariable(API.VAR_NAMES.ACCESS_TOKEN), (status, response) => {
            return status === 200;
         });
     }
 }
 
-class Request {
-
-    static RequestType = {"POST": "POST", "PUT": "PUT", "GET": "GET"};
-
-    constructor(type, url, callback, json = null) {
-        let request = new XMLHttpRequest();
-        request.open(type, url);
-        request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-
-        request.onreadystatechange = () => {
-            if ( request.readyState === 4){
-                callback(request.status, request.responseText);
-            }
-        }
-
-        if (json != null) request.send(JSON.stringify(json));
-        else request.send();
-    }
-}
