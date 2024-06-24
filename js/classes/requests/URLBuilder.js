@@ -1,12 +1,10 @@
 export class URLBuilder {
 
     constructor(url) {
+        if (!url.toString().endsWith("/")) url += "/";
+
         this.url = url;
         this.params = [];
-
-        if (!this.url.toString().endsWith("/")) {
-            this.url += "/";
-        }
     }
 
     parameter(param, value) {

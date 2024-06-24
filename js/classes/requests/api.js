@@ -8,6 +8,10 @@ export class API {
     static CLIENT_SECRET = "bWVsb2R5NjR2bw==" //TODO: create better way to get secret
     static CLIENT_ID = "MeLODy"
 
+    static getAccessToken() {
+        return this.getVariable(this.VAR_NAMES.ACCESS_TOKEN_STORAGE);
+    }
+
     static getVariable(name) {
         return sessionStorage.getItem(name);
     }

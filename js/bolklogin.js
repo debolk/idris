@@ -1,6 +1,7 @@
 import {URLBuilder} from "./classes/requests/URLBuilder.js";
 import {API} from "./classes/requests/api.js";
 import {Request} from "./classes/requests/request.js";
+import {Blip} from "./blip.js"
 
 export class Bolklogin extends API {
 
@@ -35,7 +36,7 @@ export class Bolklogin extends API {
             console.log(uri);
             location.replace(uri);
 
-        } else if ( location.href.includes("/login") ) {
+        } else if ( !this.checkLoginState() ) {
             let state = this.getParameter(Bolklogin.VAR_NAMES.STATE);
 
             if ( state !== this.getStateID() ) {
@@ -69,6 +70,7 @@ export class Bolklogin extends API {
                     setTimeout(this.refresh, expires * 1000);
 
                     document.getElementById("content").innerHTML = "<p>Welcome, " + res['user_id'] + "</p>";
+                    Blip.getAllPersons();
                 } else {
                     alert("WARNING: access_token not valid"); //TODO restart process
                 }
