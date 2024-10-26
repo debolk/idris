@@ -12,6 +12,12 @@ export class URLBuilder {
         return this;
     }
 
+    path(path) {
+        if (path.toString().endsWith("/")) path = path.substring(0, path.length - 1);
+        this.url += "/" + path.toString();
+        return this;
+    }
+
     request(request) {
         this.url += request.toString() + "?";
         return this;

@@ -2,141 +2,127 @@ class Person {
 
     uid;
     href;
-    intials;
+    initials;
     firstname;
-    lastname;
+    surname;
     email;
     pronouns;
     phone;
-    phone_parents;
+    phone_emergency;
     address;
     dateofbirth;
     membership;
+    inauguration_date;
+    resignation_letter_date;
+    resignation_date;
+    programme;
+    institution;
+    dead;
+
+    changed = {};
 
     constructor(json) {
         if (typeof json === String) json = JSON.parse(json);
 
-        this._uid = json._uid;
-        this._href = json._href;
-        this._intials = json._intials;
-        this._firstname = json._firstname;
-        this._lastname = json._lastname;
-        this._email = json._email;
-        this._pronouns = json._pronouns;
-        this._phone = json._phone;
-        this._phone_parents = json._phone_parents;
-        this._address = json._address;
-        this._dateofbirth = json._dateofbirth;
-        this._membership = json._membership;
-        this._json = json;
-
+        this.uid = json._uid;
+        this.href = json._href;
+        this.initials = json._initials;
+        this.firstname = json._firstname;
+        this.lastname = json._surname;
+        this.email = json._email;
+        this.pronouns = json._pronouns;
+        this.phone = json._phone;
+        this.phone_emergency = json._phone_emergency;
+        this.address = json._address;
+        this.dateofbirth = json._dateofbirth;
+        this.membership = json._membership;
+        this.resignation_letter_date = json._resignation_letter_date;
+        this.resignation_date = json._resignation_date;
+        this.programme = json._programme;
+        this.institution = json._institution;
+        this.dead = json._dead;
     }
 
     save() {
         //TODO SAVE TO BLIP TO SAVE IN LDAP
     }
 
-    get intials() {
-        return this._intials;
+    set_variable(var_name, value){
+        this.changed.put(var_name, value);
+        switch(var_name){
+            case "initials":
+                this.initials = value;
+            case "firstname":
+                this.firstname = value;
+            case "surname":
+                this.surname = value;
+            case "nickname":
+                this.nickname = value;
+            case "dateofbirth":
+                this.dateofbirth = value;
+            case "pronouns":
+                this.pronouns = value;
+            case "email":
+                this.email = value;
+            case "phone":
+                this.phone = value;
+            case "phone_emergency":
+                this.phone_emergency = value;
+            case "address":
+                this.address = value;
+            case "inauguration_date":
+                this.inauguration_date = value;
+            case "resignation_letter_date":
+                this.resignation_letter_date = value;
+            case "programme":
+                this.programme = value;
+            case "institution":
+                this.institution = value;
+            case "membership":
+                this.membership = value;
+            case "dead":
+                this.dead = value;
+            default:
+                return;
+        }
     }
 
-    set intials(value) {
-        this._intials = value;
-    }
-
-    get json() {
-        return this._json;
-    }
-
-    set json(value) {
-        this._json = value;
-    }
-
-    get uid() {
-        return this._uid;
-    }
-
-    set uid(value) {
-        this._uid = value;
-    }
-
-    get href() {
-        return this._href;
-    }
-
-    set href(value) {
-        this._href = value;
-    }
-
-    get firstname() {
-        return this._firstname;
-    }
-
-    set firstname(value) {
-        this._firstname = value;
-    }
-
-    get lastname() {
-        return this._lastname;
-    }
-
-    set lastname(value) {
-        this._lastname = value;
-    }
-
-    get email() {
-        return this._email;
-    }
-
-    set email(value) {
-        this._email = value;
-    }
-
-    get pronouns() {
-        return this._pronouns;
-    }
-
-    set pronouns(value) {
-        this._pronouns = value;
-    }
-
-    get phone() {
-        return this._phone;
-    }
-
-    set phone(value) {
-        this._phone = value;
-    }
-
-    get phone_parents() {
-        return this._phone_parents;
-    }
-
-    set phone_parents(value) {
-        this._phone_parents = value;
-    }
-
-    get address() {
-        return this._address;
-    }
-
-    set address(value) {
-        this._address = value;
-    }
-
-    get dateofbirth() {
-        return this._dateofbirth;
-    }
-
-    set dateofbirth(value) {
-        this._dateofbirth = value;
-    }
-
-    get membership() {
-        return this._membership;
-    }
-
-    set membership(value) {
-        this._membership = value;
+    get_variable(var_name){
+        switch(var_name){
+            case "initials":
+                return this.initials;
+            case "firstname":
+                return this.firstname;
+            case "surname":
+                return this.surname;
+            case "nickname":
+                return this.nickname;
+            case "dateofbirth":
+                return this.dateofbirth;
+            case "pronouns":
+                return this.pronouns;
+            case "email":
+                return this.email;
+            case "phone":
+                return this.phone;
+            case "phone_emergency":
+                return this.phone_emergency;
+            case "address":
+                return this.address;
+            case "inauguration_date":
+                return this.inauguration_date;
+            case "resignation_letter_date":
+                return this.resignation_letter_date;
+            case "programme":
+                return this.programme;
+            case "institution":
+                return this.institution;
+            case "membership":
+                return this.membership;
+            case "dead":
+                return this.dead;
+            default:
+                return;
+        }
     }
 }
