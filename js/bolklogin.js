@@ -6,7 +6,8 @@ import {Blip} from "./blip.js"
 export class Bolklogin extends API {
 
     static token(json){
-        new Request(Request.RequestType.POST, Bolklogin.LOGIN_ADDRESS + "token", (status, response) => {
+        new Request(Request.RequestType.POST,
+            Bolklogin.LOGIN_ADDRESS + "token", (status, response) => {
             if ( status === 200 ){
                 let res = JSON.parse(response);
                 let access = res[Bolklogin.VAR_NAMES.ACCESS_TOKEN];
@@ -14,6 +15,7 @@ export class Bolklogin extends API {
                 let expires = parseInt(res[Bolklogin.VAR_NAMES.EXPIRES]);
 
                 console.log("Validating token...");
+
                 this.validate(access, refresh, expires);
 
             }
@@ -33,7 +35,6 @@ export class Bolklogin extends API {
                 .parameter("redirect_uri", Bolklogin.APP_ADDRESS)
                 .parameter("state", this.getStateID())
                 .build();
-            console.log(uri);
             location.replace(uri);
 
         } else if ( !this.checkLoginState() ) {
@@ -63,14 +64,19 @@ export class Bolklogin extends API {
             .build(), (status, response) => {
             if (status === 200) {
                 let res = JSON.parse(response);
+
                 if (res[Bolklogin.VAR_NAMES.ACCESS_TOKEN] === access_token) {
+
+                    let expiry = new Date();
+                    expiry.setTime(expiry.getTime() + (expires * 1000));
 
                     this.setVariable(Bolklogin.VAR_NAMES.ACCESS_TOKEN_STORAGE, access_token);
                     this.setVariable(Bolklogin.VAR_NAMES.REFRESH_TOKEN_STORAGE, refresh_token);
+                    this.setVariable(Bolklogin.VAR_NAMES.EXPIRY_TOKEN_STORAGE, expiry.getTime());
                     setTimeout(this.refresh, expires * 1000);
 
                     document.getElementById("content").innerHTML = "<p>Welcome, " + res['user_id'] + "</p>";
-                    Blip.getAllPersons();
+                    location.replace(API.APP_ADDRESS.replace('/login', ''));
                 } else {
                     alert("WARNING: access_token not valid"); //TODO restart process
                 }

@@ -18,7 +18,7 @@ export class Blip extends API {
     }
 
     static patchPerson(uid, data) {
-        new Request(Request.RequestType.PUT, new URLBuilder(this.BLIP_ADDRESS)
+        new Request(Request.RequestType.PATCH, new URLBuilder(this.BLIP_ADDRESS)
             .path("person")
             .path(uid)
             .path("update")

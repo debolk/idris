@@ -1,12 +1,12 @@
 import {Request} from "./request.js";
 
 export class API {
-    static VAR_NAMES = {"STATE": "state", "ACCESS_TOKEN": "access_token", "EXPIRES": "expires_in", "REFRESH_TOKEN": "refresh_token", "STATE_ID": "stateID", "ACCESS_TOKEN_STORAGE": "bolk-access-token", "REFRESH_TOKEN_STORAGE": "bolk-refresh-token"};
+    static VAR_NAMES = {"STATE": "state", "ACCESS_TOKEN": "access_token", "EXPIRES": "expires_in", "REFRESH_TOKEN": "refresh_token", "STATE_ID": "stateID", "ACCESS_TOKEN_STORAGE": "bolk-access-token", "REFRESH_TOKEN_STORAGE": "bolk-refresh-token", "EXPIRY_TOKEN_STORAGE": "bolk-token-expiry"};
     static LOGIN_ADDRESS = "http://10.99.1.105:8002/"; //"login.i.bolkhuis.nl"
     static APP_ADDRESS = "http://10.99.1.105:8008/login";
 
     static CLIENT_SECRET = "bWVsb2R5NjR2bw==" //TODO: create better way to get secret
-    static CLIENT_ID = "MeLODy"
+    static CLIENT_ID = "I.D.R.I.S.";
 
     static getAccessToken() {
         return this.getVariable(this.VAR_NAMES.ACCESS_TOKEN_STORAGE);
@@ -42,11 +42,17 @@ export class API {
     }
 
     static checkLoginState() {
-        return this.getVariable(API.VAR_NAMES.ACCESS_TOKEN) != null;
+        if (this.getVariable(API.VAR_NAMES.ACCESS_TOKEN_STORAGE) == null
+            || this.getVariable(API.VAR_NAMES.ACCESS_TOKEN_STORAGE) == null) return false;
+
+        let current_date = new Date().getTime();
+        let expiry_date = this.getVariable(API.VAR_NAMES.EXPIRY_TOKEN_STORAGE);
+
+        return current_date < expiry_date;
     }
 
     static async checkAuthorization() {
-        new Request(Request.RequestType.POST, API.LOGIN_ADDRESS += "bestuur/?access_token=" + this.getVariable(API.VAR_NAMES.ACCESS_TOKEN), (status, response) => {
+        new Request(Request.RequestType.POST, API.LOGIN_ADDRESS += "bestuur/?access_token=" + this.getVariable(API.VAR_NAMES.ACCESS_TOKEN_STORAGE), (status, response) => {
            return status === 200;
         });
     }
