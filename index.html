@@ -5,6 +5,7 @@
   <title>I.D.R.I.S. - Identity and Directory Resource Integration System</title>
 
   <script type="module" src="js/bolklogin.js"></script>
+  <script type="module" src="js/index.js"></script>
 </head>
 <body>
 
@@ -12,25 +13,36 @@
 <h8>A simple web application build to input and manage basic member information. <br>Makes use of BLIP to communicate with the LDAP server.</h8>
 <br><br>
 <button type="button" id="login">LOGIN</button>
-<button type="button" id="blip">BLIP</button>
+<button type="button" id="blip">getCurrentMembers</button>
 
 <div id="content">Welcome</div>
+
+<div id="personsgrid"></div>
 
 <script type="module">
   import { Bolklogin } from "./js/bolklogin.js"
   import { Blip } from "./js/blip.js";
+  import {Person} from "./js/classes/person";
 
   if (Bolklogin.checkLoginState()){
     document.getElementById('content').innerHTML = "Welcome, you are logged in.";
   }
 
   document.getElementById("login").onclick = () => {
-    console.log("CLICK");
     Bolklogin.login();
   }
   document.getElementById("blip").onclick = () => {
-    console.log("CLICK");
-    Blip.getAllPersons();
+
+    Blip.getCurrentMembers((response) => {
+      let persons = Person.fromArray(response);
+      let personsGrid = document.getElementById("personsgrid");
+      persons.forEach((person) => {
+        let link = document.createElement("a");
+        link.href = Blip.APP_ADDRESS + "/person/" + person.uid;
+        link.innerHTML = "<h4>" + person.fullname + "</h4>";
+        personsGrid.appendChild(link);
+      });
+    });
   }
 </script>
 

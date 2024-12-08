@@ -32,7 +32,7 @@ export class Bolklogin extends API {
                 .request("authenticate")
                 .parameter("response_type", "code")
                 .parameter("client_id", Bolklogin.CLIENT_ID)
-                .parameter("redirect_uri", Bolklogin.APP_ADDRESS)
+                .parameter("redirect_uri", Bolklogin.APP_REDIRECT_ADDRESS)
                 .parameter("state", this.getStateID())
                 .build();
             location.replace(uri);
@@ -45,7 +45,7 @@ export class Bolklogin extends API {
                 else alert("WARNING: THE STATE PARAMETER DID NOT MATCH\nYou might be at risk of a CSRF-attack."); //TODO RESTART PROCESS
             } else {
                 this.token({"grant_type": "authorization_code"
-                    , "redirect_uri": Bolklogin.APP_ADDRESS
+                    , "redirect_uri": Bolklogin.APP_REDIRECT_ADDRESS
                     , "code": this.getParameter("code")
                     , "client_id": Bolklogin.CLIENT_ID
                     , "client_secret": Bolklogin.CLIENT_SECRET});
@@ -76,7 +76,7 @@ export class Bolklogin extends API {
                     setTimeout(this.refresh, expires * 1000);
 
                     document.getElementById("content").innerHTML = "<p>Welcome, " + res['user_id'] + "</p>";
-                    location.replace(API.APP_ADDRESS.replace('/login', ''));
+                    location.replace(API.APP_ADDRESS);
                 } else {
                     alert("WARNING: access_token not valid"); //TODO restart process
                 }

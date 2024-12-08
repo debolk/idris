@@ -1,4 +1,4 @@
-class Person {
+export class Person {
 
     uid;
     href;
@@ -24,30 +24,42 @@ class Person {
     constructor(json) {
         if (typeof json === String) json = JSON.parse(json);
 
-        this.uid = json._uid;
-        this.href = json._href;
-        this.initials = json._initials;
-        this.firstname = json._firstname;
-        this.lastname = json._surname;
-        this.email = json._email;
-        this.pronouns = json._pronouns;
-        this.phone = json._phone;
-        this.phone_emergency = json._phone_emergency;
-        this.address = json._address;
-        this.dateofbirth = json._dateofbirth;
-        this.membership = json._membership;
-        this.resignation_letter_date = json._resignation_letter_date;
-        this.resignation_date = json._resignation_date;
-        this.programme = json._programme;
-        this.institution = json._institution;
-        this.dead = json._dead;
+        console.log(json);
+
+        this.uid = json.uid;
+        this.href = json.href;
+        this.initials = json.initials;
+        this.firstname = json.firstname;
+        this.surname = json.surname;
+        this.fullname = json.name;
+        this.email = json.email;
+        this.pronouns = json.pronouns;
+        this.phone = json.phone;
+        this.phone_emergency = json.phone_emergency;
+        this.address = json.address;
+        this.dateofbirth = json.dateofbirth;
+        this.membership = json.membership;
+        this.resignation_letter_date = json.resignation_letter_date;
+        this.resignation_date = json.resignation_date;
+        this.programme = json.programme;
+        this.institution = json.institution;
+        this.dead = json.dead;
     }
 
     save() {
         //TODO SAVE TO BLIP TO SAVE IN LDAP
     }
 
-    set_variable(var_name, value){
+    static fromArray(json) {
+        let persons = [];
+        json = JSON.parse(json);
+        for (let entry of json){
+            persons.push(new Person(entry));
+        }
+        return persons;
+    }
+
+    set(var_name, value){
         this.changed.put(var_name, value);
         switch(var_name){
             case "initials":
@@ -97,6 +109,8 @@ class Person {
                 return this.surname;
             case "nickname":
                 return this.nickname;
+            case "fullname":
+                return this.fullname;
             case "dateofbirth":
                 return this.dateofbirth;
             case "pronouns":
