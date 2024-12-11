@@ -14,6 +14,19 @@
 <h1>I.D.R.I.S. - Identity and Directory Resource Integration System</h1>
 <br><br>
 
+<div id="topnav">
+
+    <div onclick="location.reload()">
+        <img src="images/favicon.svg" alt="I.D.R.I.S. Logo">
+        <h1>I.D.R.I.S.</h1>
+    </div>
+    <a><select id="filter_attribute"><option value="name">Name</option></select></a>
+    <a><input type="text" id="filter_value"></a>
+    <a href="person/new"><p>New member</p></a>
+    <a href="export"><p>Export</p></a>
+
+</div>
+
 <div class="content">
     <button id="edit" onclick="edit()"><i class="bi bi-pencil"> Edit</i></button> <button id="save" onclick="save()"><i class="bi bi-floppy"> Save</i></button>
     <table id="person">

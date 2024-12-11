@@ -6,14 +6,28 @@
 
 </head>
 <body>
-    <h1>Welcome</h1>
-    <div id="content"></div>
-    <script type="module" defer>
-        import {Bolklogin} from "/js/classes/requests/bolklogin.js";
 
-        Bolklogin.login();
+<div id="topnav">
+
+    <div onclick="location.reload()">
+        <img src="images/favicon.svg" alt="I.D.R.I.S. Logo">
+        <h1>I.D.R.I.S.</h1>
+    </div>
+    <a><select id="filter_attribute"><option value="name">Name</option></select></a>
+    <a><input type="text" id="filter_value"></a>
+    <a href="person/new"><p>New member</p></a>
+    <a href="export"><p>Export</p></a>
+
+</div>
+
+<div id="content"></div>
+
+<script type="module" defer>
+    import {Bolklogin} from "/js/classes/requests/bolklogin.js";
+
+    Bolklogin.login();
 
 
-    </script>
+</script>
 </body>
 </html>

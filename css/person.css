@@ -12,6 +12,8 @@ table{
 }
 
 .content {
+    position: absolute;
+    top: 10.5vh;
     max-width: 64%;
     margin: auto;
 }
