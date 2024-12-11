@@ -37,6 +37,20 @@ export class Blip extends API {
 
     }
 
+    static getPersonPhoto(uid, width, height, callback) {
+        let url = new URLBuilder(Storage.BLIP_ADDRESS)
+            .path("person")
+            .path(uid)
+            .path("photo")
+            .access_token(Bolklogin.getAccessToken())
+            .build();
+        new Request(Request.RequestType.GET, url, (status, response) => {
+            if (status === 200) {
+                callback(response);
+            }
+        })
+    }
+
     static getPerson(uid, callback) {
         let url = new URLBuilder(Storage.BLIP_ADDRESS)
             .path("person")

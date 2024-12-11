@@ -1,3 +1,5 @@
+import {Blip} from "./requests/blip";
+
 export class Person {
 
     uid;
@@ -72,6 +74,10 @@ export class Person {
             persons.push(new Person(entry));
         }
         return persons;
+    }
+
+    getPhoto(width, height, callback){
+        Blip.getPersonPhoto(this.uid, width, height, callback)
     }
 
     get(var_name){

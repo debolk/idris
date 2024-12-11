@@ -2,23 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>I.D.R.I.S. - Identity and Directory Resource Integration System</title>
+  <title>I.D.R.I.S. - Ledenadmin</title>
 
   <script type="module" src="./js/index.js" defer></script>
   <link rel="icon" href="./images/favicon.ico" sizes="any">
   <link rel="icon" href="./images/favicon.svg" type="image/svg+xml">
-
+  <link rel="stylesheet" href="./css/shared.css">
+  <link rel="stylesheet" href="./css/index.css">
 </head>
 
 <body>
 
-<h1>I.D.R.I.S. - Identity and Directory Resource Integration System</h1>
-<h8>A simple web application build to input and manage basic member information. <br>Makes use of BLIP to communicate with the LDAP server.</h8>
-<br><br>
+<div id="topnav">
 
-<div id="content"></div>
+  <div onclick="location.reload()">
+    <img src="images/favicon.svg" alt="I.D.R.I.S. Logo">
+    <h1>I.D.R.I.S.</h1>
+  </div>
+  <a><select id="filter_attribute"><option value="name">Name</option></select></a>
+  <a><input type="text" id="filter_value"></a>
+  <a href="person/new"><p>New member</p></a>
+  <a href="export"><p>Export</p></a>
+</div>
 
 <div id="personsgrid"></div>
+
 
 </body>
 

@@ -2,7 +2,7 @@ import {Person} from "./classes/person";
 import {Blip} from "./classes/requests/blip";
 import {Storage} from "./classes/helpers/storage";
 
-Blip.debug("Populating person page...");
+Storage.debug("Populating person page...");
 let gperson;
 
 function load() {
