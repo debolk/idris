@@ -1,0 +1,58 @@
+table{
+    max-width: 100%;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: large;
+    background-color: #E34234;
+    text-align: left;
+    vertical-align: top;
+    color: black;
+    border: 2px solid black;
+    border-radius: 15px;
+}
+
+.content {
+    max-width: 64%;
+    margin: auto;
+}
+
+button {
+    width: 20%;
+    margin-bottom: 5px;
+    font-size: x-large;
+}
+
+thead{
+    text-align: center;
+    background-color: #E34234;
+}
+
+th, td {
+    border: 0;
+    padding: 5px 10px 10px;
+}
+
+tr {
+    background-color: #E34234;
+}
+
+tr:nth-child(even) {
+    background-color: #B5B8B1;
+}
+
+td i {
+    margin-left: 20px;
+    margin-right: 10px;
+}
+
+td div {
+    display: inline-block;
+}
+
+.bi-phone {
+    margin-left: 10px;
+}
+
+.contact{
+    text-align: center;
+}

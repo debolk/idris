@@ -5,6 +5,7 @@ export class Person {
     initials;
     firstname;
     surname;
+    nickname;
     email;
     pronouns;
     phone;
@@ -19,18 +20,35 @@ export class Person {
     institution;
     dead;
 
-    changed = {};
+    available_attributes = {
+        "initials": "string",
+        "firstname": "string",
+        "surname": "string",
+        "nickname": "string",
+        "email": "string",
+        "pronouns": "string",
+        "phone": "phone_number",
+        "phone_emergency": "phone_number",
+        "address": "multiline_string",
+        "dateofbirth": "date",
+        "membership": "options",
+        "inauguration_date": "date",
+        "resignation_letter_date": "date",
+        "resignation_date": "date",
+        "programme": "multiline_string",
+        "institution": "multiline_string",
+        "dead": "bool"
+    }
 
     constructor(json) {
-        if (typeof json === String) json = JSON.parse(json);
-
-        console.log(json);
+        if (typeof json === "string") json = JSON.parse(json);
 
         this.uid = json.uid;
         this.href = json.href;
         this.initials = json.initials;
         this.firstname = json.firstname;
         this.surname = json.surname;
+        this.nickname = json.nickname;
         this.fullname = json.name;
         this.email = json.email;
         this.pronouns = json.pronouns;
@@ -39,15 +57,12 @@ export class Person {
         this.address = json.address;
         this.dateofbirth = json.dateofbirth;
         this.membership = json.membership;
+        this.inauguration_date = json.inauguration_date;
         this.resignation_letter_date = json.resignation_letter_date;
         this.resignation_date = json.resignation_date;
         this.programme = json.programme;
         this.institution = json.institution;
         this.dead = json.dead;
-    }
-
-    save() {
-        //TODO SAVE TO BLIP TO SAVE IN LDAP
     }
 
     static fromArray(json) {
@@ -59,47 +74,7 @@ export class Person {
         return persons;
     }
 
-    set(var_name, value){
-        this.changed.put(var_name, value);
-        switch(var_name){
-            case "initials":
-                this.initials = value;
-            case "firstname":
-                this.firstname = value;
-            case "surname":
-                this.surname = value;
-            case "nickname":
-                this.nickname = value;
-            case "dateofbirth":
-                this.dateofbirth = value;
-            case "pronouns":
-                this.pronouns = value;
-            case "email":
-                this.email = value;
-            case "phone":
-                this.phone = value;
-            case "phone_emergency":
-                this.phone_emergency = value;
-            case "address":
-                this.address = value;
-            case "inauguration_date":
-                this.inauguration_date = value;
-            case "resignation_letter_date":
-                this.resignation_letter_date = value;
-            case "programme":
-                this.programme = value;
-            case "institution":
-                this.institution = value;
-            case "membership":
-                this.membership = value;
-            case "dead":
-                this.dead = value;
-            default:
-                return;
-        }
-    }
-
-    get_variable(var_name){
+    get(var_name){
         switch(var_name){
             case "initials":
                 return this.initials;

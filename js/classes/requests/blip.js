@@ -1,14 +1,15 @@
-import {API} from "./classes/requests/api.js";
-import {Request} from "./classes/requests/request.js";
-import {URLBuilder} from "./classes/requests/URLBuilder.js";
-import {Person} from "./classes/person.js";
+import {API} from "./api.js";
+import {Request} from "./request.js";
+import {Storage} from "../helpers/storage";
+import {Bolklogin} from "./bolklogin";
+import {URLBuilder} from "../helpers/url_builder";
 
 export class Blip extends API {
 
     static getAll(request, callback) {
-        new Request(Request.RequestType.GET, new URLBuilder(this.BLIP_ADDRESS)
-            .request(request)
-            .parameter(this.VAR_NAMES.ACCESS_TOKEN, this.getAccessToken())
+        new Request(Request.RequestType.GET, new URLBuilder(Storage.BLIP_ADDRESS)
+            .path(request)
+            .access_token(Bolklogin.getAccessToken())
             .build(), (status, response) => {
             if (status === 200) {
                 callback(response);
@@ -32,16 +33,20 @@ export class Blip extends API {
         Blip.getAll("members/candidate", callback);
     }
 
-    static newPersons() {
+    static newPerson() {
 
     }
 
     static getPerson(uid, callback) {
-        new Request(Request.RequestType.GET, new URLBuilder(this.BLIP_ADDRESS)
+        let url = new URLBuilder(Storage.BLIP_ADDRESS)
             .path("person")
-            .request("uid")
-            .parameter(this.VAR_NAMES.ACCESS_TOKEN, this.getAccessToken())
-            .build(), (status, response) =>{
+            .path(uid)
+            .path("all")
+            .access_token(Bolklogin.getAccessToken())
+            .build();
+        Storage.debug("Requesting person: " + url);
+
+        new Request(Request.RequestType.GET, url, (status, response) =>{
             if (status === 200) {
                 callback(response);
             }
@@ -49,11 +54,12 @@ export class Blip extends API {
     }
 
     static patchPerson(uid, data) {
-        new Request(Request.RequestType.PATCH, new URLBuilder(this.BLIP_ADDRESS)
+        Storage.debug(data, "Blip/patchPerson");
+        new Request(Request.RequestType.PATCH, new URLBuilder(Storage.BLIP_ADDRESS)
             .path("person")
             .path(uid)
-            .request("update")
-            .parameter(this.VAR_NAMES.ACCESS_TOKEN, this.getAccessToken())
+            .path("update")
+            .access_token(Bolklogin.getAccessToken())
             .build(), (status, response) => {
             if (status === 200) {
                 console.log(response);

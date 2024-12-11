@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>I.D.R.I.S. - Identity and Directory Resource Integration System</title>
+    <link rel="stylesheet" href="./css/shared.css">
+    <link rel="stylesheet" href="./css/person.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" integrity="sha384-tViUnnbYAV00FLIhhi3v/dWt3Jxw4gZQcNoSCxCIFNJVCx7/D55/wXsrNIRANwdD" crossorigin="anonymous">
+    <script type="module" src="./js/person.js" defer></script>
+</head>
+
+<body>
+
+<h1>I.D.R.I.S. - Identity and Directory Resource Integration System</h1>
+<br><br>
+
+<div class="content">
+    <button id="edit" onclick="edit()"><i class="bi bi-pencil"> Edit</i></button> <button id="save" onclick="save()"><i class="bi bi-floppy"> Save</i></button>
+    <table id="person">
+        <thead>
+            <th colspan="2"><h1 id="firstname"></h1> <h1 id="surname"></h1></th>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="2" class="contact">
+                    <div title="Phone number"> <i class="bi bi-phone" ></i><a id="phone"></a> </div>
+                    <div title="Email address"> <i class="bi bi-envelope-heart"></i><a id="email"></a> </div>
+                    <div title="Emergency phone number"> <i class="bi bi-hospital"></i><a id="phone_emergency"></a> </div>
+                </td>
+            </tr>
+            <tr>
+                <th>Membership</th>
+                <td id="membership"></td>
+            </tr>
+            <tr>
+                <th>Nickname</th>
+                <td id="nickname"></td>
+            </tr>
+            <tr>
+                <th>Initials</th>
+                <td id="initials"></td>
+            </tr>
+            <tr>
+                <th>Pronouns</th>
+                <td id="pronouns"></td>
+            </tr>
+            <tr>
+                <th>Date of birth</th>
+                <td id="dateofbirth"></td>
+            </tr>
+            <tr>
+                <th>Address</th>
+                <td id="address"></td>
+            </tr>
+            <tr>
+                <th>Institution</th>
+                <td id="institution"></td>
+            </tr>
+            <tr>
+                <th>Programme</th>
+                <td id="programme"></td>
+            </tr>
+            <tr>
+                <th>Inauguration date</th>
+                <td id="inauguration_date"></td>
+            </tr>
+            <tr>
+                <th>Resignation letter date</th>
+                <td id="resignation_letter_date"></td>
+            </tr>
+            <tr>
+                <th>Resignation date</th>
+                <td id="resignation_date"></td>
+            </tr>
+            <tr>
+                <th>Dead</th>
+                <td id="dead"></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+
+</html>
