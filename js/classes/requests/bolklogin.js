@@ -101,6 +101,7 @@ export class Bolklogin extends API {
 
     static checkLoggedIn() {
         if (!this.checkLoginState()) {
+            alert("Welcome to I.D.R.I.S.\nPlease press OK to log in.");
             this.login();
             return false;
         }
