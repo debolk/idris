@@ -12,6 +12,8 @@ function load() {
 
     Blip.getCurrentMembers((response) => {
 
+        //TODO: rewrite for all searching to be done here and (basically) only persons/all is used to blip
+
         let persons = Person.fromArray(response);
         let personsGrid = document.getElementById("personsgrid");
         persons.forEach((person) => {
