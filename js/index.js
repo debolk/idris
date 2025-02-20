@@ -4,20 +4,16 @@ import {Person} from "./classes/person";
 import {URLBuilder} from "./classes/helpers/url_builder";
 import {Storage} from "./classes/helpers/storage";
 
-Storage.debug("Populating index page...");
 let photo_queue = [];
 
 /**
  * @type {PersonController}
  */
 let personcontroller;
-
-/**
- * @type {Time}
- */
 let filter_timeout;
 
 function load() {
+    console.info("Populating index page...");
     if ( !Bolklogin.checkLoggedIn() ) return; //TODO do something else with errors etc.
 
     else if ( personcontroller === null || personcontroller === undefined ){
@@ -25,13 +21,13 @@ function load() {
 
             personcontroller = Person.fromArray(response);
             personcontroller.default_filter();
-            loadPersons();
+            filter();
 
         });
     }
 
     else{
-        loadPersons();
+        filter();
     }
 
     document.getElementById('filter_value').onkeydown = filter_timer;
@@ -50,7 +46,12 @@ function filter_timer() {
 function filter(){
     let attribute = document.getElementById('filter_attribute').value;
     let filter_string = document.getElementById('filter_value').value;
-    personcontroller.filter(attribute, filter_string);
+
+    if (filter_string !== undefined &&
+        filter_string !== null &&
+        filter_string.length !== 0) personcontroller.filter(attribute, filter_string);
+    else personcontroller.default_filter();
+
     loadPersons();
 }
 
@@ -65,13 +66,13 @@ function loadPersons(){
         let link = document.createElement("a");
         link.href = new URLBuilder(Storage.APP_ADDRESS)
             .path("person")
-            .parameter("uid", person.uid)
+            .parameter("uid", person.uid())
             .build();
-        link.innerHTML = `<img id="${person.uid}_photo" alt="${person.fullname}'s profile photo"><h4>${person.fullname}</h4>`;
+        link.innerHTML = `<img id="${person.uid()}_photo" alt="${person.get("name")}'s profile photo"><h4>${person.get("name")}</h4>`;
         link.classList.add("person");
         personsGrid.appendChild(link);
 
-        photo_queue.push(person.uid);
+        photo_queue.push(person.uid());
     }
     photo_queue = photo_queue.reverse();
 
@@ -86,7 +87,7 @@ function getNextPhoto() {
     let uid = photo_queue.pop();
     if (uid === undefined) getNextPhoto();
 
-    Storage.debug(`Requesting ${uid}'s profile photo.`);
+    console.debug(`Requesting ${uid}'s profile photo.`);
     let person = personcontroller.get_person(uid);
 
     person.getPhoto((response) => {

@@ -28,11 +28,14 @@ export class Blip extends API {
             .path("photo")
             .access_token(Bolklogin.getAccessToken())
             .build();
+
         new Request(Request.RequestType.GET, url, (status, response) => {
             if (status === 200) {
                 callback(response);
+            } else {
+                callback(Storage.BROKEN_IMAGE);
             }
-        })
+        }, null, 10000);
     }
 
     static getPerson(uid, callback) {
@@ -42,7 +45,7 @@ export class Blip extends API {
             .path("all")
             .access_token(Bolklogin.getAccessToken())
             .build();
-        Storage.debug("Requesting person: " + url);
+        console.debug("Requesting person: " + url);
 
         new Request(Request.RequestType.GET, url, (status, response) =>{
             if (status === 200) {
@@ -52,7 +55,7 @@ export class Blip extends API {
     }
 
     static patchPerson(uid, data) {
-        Storage.debug(data, "Blip/patchPerson");
+        console.debug(data, "Blip/patchPerson");
         new Request(Request.RequestType.PATCH, new URLBuilder(Storage.BLIP_ADDRESS)
             .path("person")
             .path(uid)

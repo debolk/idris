@@ -24,10 +24,10 @@ export class PersonController{
      */
     getDisplayedPersons() {
         return this.#displayed_persons.sort((a, b) => {
-            if (a.firstname === undefined || b.firstname === undefined) {
-                return a.uid.localeCompare(b.uid);
+            if (a.get("firstname") === undefined || b.get("firstname") === undefined) {
+                return a.uid().localeCompare(b.uid());
             }
-            return a.firstname.localeCompare(b.firstname);
+            return a.get("firstname").localeCompare(b.get("firstname"));
         });
     }
 
@@ -36,7 +36,7 @@ export class PersonController{
      * @param person
      */
     add_person(person) {
-        this.#persons.set(person.uid, person);
+        this.#persons.set(person.uid(), person);
     }
 
     /**
@@ -55,9 +55,7 @@ export class PersonController{
      */
     default_filter() {
         this.#displayed_persons = [];
-        return this.#filter_var("membership", "member", (a, f) => {
-            return a === f;
-        });
+        return this.filter("membership", "member");
     }
 
     /**
@@ -71,7 +69,20 @@ export class PersonController{
 
         let filterFunc;
 
-        if (filter.startsWith("*") && filter.endsWith("*")){
+        if (filter === "*") {
+
+            this.#displayed_persons = this.#persons;
+            return;
+
+        } else if (attribute === 'membership' ||
+            (filter.startsWith("\"") && filter.endsWith("\""))) {
+
+            filterFunc = this.#filter_exact;
+            if (filter.startsWith("\"") && filter.endsWith("\"")) {
+                filter = filter.substring(1, filter.length - 1);
+            }
+
+        } else if (filter.startsWith("*") && filter.endsWith("*")){
 
             filterFunc = this.#filter_includes;
             filter = filter.substring(1, filter.length - 1);
@@ -90,12 +101,23 @@ export class PersonController{
 
         }
         filter = filter.toLowerCase().trim();
+        console.debug(filter, attribute, filterFunc);
 
         if (attribute === "name") {
-            return this.#filter_name(filter, filterFunc);
+            this.#filter_name(filter, filterFunc);
         } else {
-            return this.#filter_var(attribute, filter, filterFunc);
+            this.#filter_var(attribute, filter, filterFunc);
         }
+    }
+
+    /**
+     *
+     * @param {string} attribute
+     * @param {string} filter
+     * @returns {boolean}
+     */
+    #filter_exact(attribute, filter) {
+        return attribute === filter;
     }
 
     /**
@@ -139,15 +161,14 @@ export class PersonController{
      */
     #filter_name(filter, filterFunc) {
         for (let person of this.#persons.values()) {
-            if ((person.fullname !== undefined && filterFunc(person.fullname.toLowerCase().trim(), filter)) ||
-                (person.firstname !== undefined && filterFunc(person.firstname.toLowerCase().trim(), filter)) ||
-                (person.surname !== undefined && filterFunc(person.surname.toLowerCase().trim(), filter)) ||
-                (person.nickname !== undefined && filterFunc(person.nickname.toLowerCase().trim(), filter)) ||
-                filterFunc(person.uid.toLowerCase().trim(), filter)) {
+            if ((person.get("name") !== undefined && filterFunc(person.get("name").toLowerCase().trim(), filter)) ||
+                (person.get("firstname") !== undefined && filterFunc(person.get("firstname").toLowerCase().trim(), filter)) ||
+                (person.get("surname") !== undefined && filterFunc(person.get("surname").toLowerCase().trim(), filter)) ||
+                (person.get("nickname") !== undefined && filterFunc(person.get("nickname").toLowerCase().trim(), filter)) ||
+                filterFunc(person.uid().toLowerCase().trim(), filter)) {
                 this.#displayed_persons.push(person);
             }
         }
-        return this.getDisplayedPersons();
     }
 
     /**
@@ -159,11 +180,14 @@ export class PersonController{
      */
     #filter_var(attribute, filter, filterFunc) {
         for (let person of this.#persons.values()) {
-            if (filterFunc(person.get(attribute).toString().toLowerCase().trim(), filter)){
+
+            let attr = person.get(attribute);
+
+            if (attr !== undefined &&
+                filterFunc(attr.toString().toLowerCase().trim(), filter)){
                 this.#displayed_persons.push(person);
             }
         }
-        return this.getDisplayedPersons();
     }
 
 }

@@ -18,7 +18,7 @@ export class Bolklogin extends API {
                 let refresh = data[Storage.PARAMETERS.REFRESH_TOKEN];
                 let expires = parseInt(data[Storage.PARAMETERS.EXPIRES]);
 
-                Storage.debug("Validating token...");
+                console.debug("Validating token...");
 
                 this.validateToken(access, refresh, expires);
 
@@ -28,7 +28,7 @@ export class Bolklogin extends API {
 
     static login() {
 
-        Storage.debug("Logging in...");
+        console.debug("Logging in...");
 
         let login_state = this.checkLoginState();
 
@@ -92,7 +92,7 @@ export class Bolklogin extends API {
     }
 
     static refreshToken() {
-        Storage.debug("Refreshing access token...");
+        console.debug("Refreshing access token...");
         Bolklogin.requestToken({"grant_type": "refresh_token"
             , "refresh_token": Storage.getVariable(Storage.STORAGE.REFRESH_TOKEN_STORAGE)
             , "client_id": Storage.CLIENT_ID
@@ -112,7 +112,7 @@ export class Bolklogin extends API {
         if (Storage.hasVariable(Storage.STORAGE.ACCESS_TOKEN_STORAGE) &&
         Storage.hasVariable(Storage.STORAGE.REFRESH_TOKEN_STORAGE &&
         Storage.hasVariable(Storage.STORAGE.EXPIRY_TOKEN_STORAGE))) {
-            Storage.debug(`ACCESS_TOKEN_STORAGE: ${Storage.getVariable(Storage.STORAGE.ACCESS_TOKEN_STORAGE)}`);
+            console.debug(`ACCESS_TOKEN_STORAGE: ${Storage.getVariable(Storage.STORAGE.ACCESS_TOKEN_STORAGE)}`);
             return false;
         }
 
@@ -122,8 +122,8 @@ export class Bolklogin extends API {
         let logged_in = expiry_date > current_date;
         if (logged_in) {
             let timeout = expiry_date - current_date - 64000;
-            Storage.debug("User logged in, setting the refresh timeout.");
-            Storage.debug(`Refreshing in ${timeout/1000} seconds`);
+            console.debug("User logged in, setting the refresh timeout.");
+            console.debug(`Refreshing in ${timeout/1000} seconds`);
             setTimeout(this.refreshToken, timeout);
         }
         return logged_in;

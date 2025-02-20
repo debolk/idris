@@ -2,16 +2,17 @@ import {Person} from "./classes/person";
 import {Blip} from "./classes/requests/blip";
 import {Storage} from "./classes/helpers/storage";
 
-Storage.debug("Populating person page...");
+console.debug("Populating person page...");
 let gperson;
 
 function load() {
 
     let params = new URLSearchParams(location.search);
     let person = params.get("uid");
-    Storage.debug("Loading " + person);
+    console.debug("Loading " + person);
+
     Blip.getPerson(person, (response) => {
-        Storage.debug(response);
+        console.debug(response);
         gperson = new Person(response);
         populatePage(gperson);
     });
