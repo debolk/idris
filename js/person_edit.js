@@ -2,19 +2,23 @@ import {Person} from "./classes/person";
 import {Blip} from "./classes/requests/blip";
 import {Storage} from "./classes/helpers/storage";
 
-console.debug("Populating person page...");
-let gperson;
+/**
+ * @type {Person}
+ */
+let person_object;
 
 function load() {
 
+    console.debug("Populating person page...");
+
     let params = new URLSearchParams(location.search);
     let person = params.get("uid");
+
     console.debug("Loading " + person);
 
     Blip.getPerson(person, (response) => {
-        console.debug(response);
-        gperson = new Person(response);
-        populatePage(gperson);
+        person_object = new Person(response);
+        populatePage(person_object);
     });
 
     document.getElementById("edit").onclick = edit;
@@ -22,7 +26,7 @@ function load() {
 }
 
 function populatePage(person) {
-    for (let attribute in person.available_attributes) {
+    for (let attribute of Person.available_attributes.keys()) {
         let element = document.getElementById(attribute);
         element.innerHTML = parseAttribute(attribute, person.get(attribute));
     }
@@ -49,9 +53,9 @@ function parseAttribute(attribute, value) {
 }
 
 export function edit() {
-    //let person = Blip.getVariable("bolk-person");
-    for (let attribute in gperson.available_attributes) {
-        let type = gperson.available_attributes[attribute];
+    for (let entry of Person.available_attributes.entries()) {
+        let attribute = entry[0]
+        let type = entry[1]
 
         let old = document.getElementById(attribute);
         let parent = old.parentNode;
@@ -104,20 +108,29 @@ export function edit() {
 }
 
 function save() {
-    let changed = {};
-    for (let attribute in gperson.available_attributes) {
-        let type = gperson.available_attributes[attribute];
+    for (let entry of Person.available_attributes.entries()) {
+        let attribute = entry[0];
+        let type = entry[1];
 
         let old = document.getElementById(attribute);
         let value = old.value;
 
+        let person_attr = person_object.get(attribute);
+
+        if (value === "") value = undefined;
+
+        if (person_attr === undefined && value === undefined) {
+            continue;
+        }
 
         if (type === "multiline_string") {
             value = old.innerHTML;
 
             if (attribute !== "address") {
-                if (gperson[attribute] !== value &&
-                    gperson[attribute].join("\n") !== value) changed[attribute] = value.split("\n");
+                if (person_attr !== undefined &&
+                    person_attr !== value &&
+                    person_attr.join("\n") !== value)
+                    person_object.set(attribute, value.split('\n'));
                 continue;
             }
 
@@ -126,19 +139,18 @@ function save() {
 
         } else if (type === "options") {
             value = old.options.item(old.options.selectedIndex).value;
+
         } else if (type === "bool") {
-            gperson[attribute] = gperson[attribute] === "yes";
             value = old.checked;
         }
 
-        if (value === "") value = undefined;
 
-        if (gperson[attribute] !== value) {
-            changed[attribute] = value;
+        if (person_attr !== value) {
+            person_object.set(attribute, value);
         }
     }
-    if (Object.keys(changed).length > 0) Blip.patchPerson(gperson["uid"], JSON.stringify(changed));
-    //location.reload()
+    person_object.save();
+    // location.reload()
 }
 
 load();

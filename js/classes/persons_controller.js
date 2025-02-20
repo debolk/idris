@@ -84,27 +84,21 @@ export class PersonController{
 
 
         if (filter === "*") {
-
             this.#displayed_persons = this.#persons;
             return;
 
         } else if (filter.startsWith("\"") && filter.endsWith("\"")) {
-
             filterFunc = PersonController.#filter_exact;
             filter = filter.substring(1, filter.length - 1);
-
         } else if (filter.startsWith("*") && filter.endsWith("*")){
-
             filterFunc = PersonController.#filter_includes;
             filter = filter.substring(1, filter.length - 1);
 
         } else if (filter.startsWith("*")) {
-
             filterFunc = PersonController.#filter_endswith;
             filter = filter.substring(1);
 
         } else if (filter.endsWith("*")) {
-
             filterFunc = PersonController.#filter_startswith;
             filter = filter.substring(0, filter.length - 1);
 
@@ -119,6 +113,43 @@ export class PersonController{
             this.#filter_name(filter, filterFunc);
         } else {
             this.#filter_var(attribute, filter, filterFunc);
+        }
+    }
+
+    /**
+     *
+     * @param {string} filter
+     * @param {CallableFunction} filterFunc
+     * @returns {Array<Person>}
+     */
+    #filter_name(filter, filterFunc) {
+        for (let person of this.#persons.values()) {
+            if ((person.get("name") !== undefined && filterFunc(person.get("name").toLowerCase().trim(), filter)) ||
+                (person.get("firstname") !== undefined && filterFunc(person.get("firstname").toLowerCase().trim(), filter)) ||
+                (person.get("surname") !== undefined && filterFunc(person.get("surname").toLowerCase().trim(), filter)) ||
+                (person.get("nickname") !== undefined && filterFunc(person.get("nickname").toLowerCase().trim(), filter)) ||
+                filterFunc(person.uid().toLowerCase().trim(), filter)) {
+                this.#displayed_persons.push(person);
+            }
+        }
+    }
+
+    /**
+     *
+     * @param {string} attribute
+     * @param {string} filter
+     * @param {CallableFunction} filterFunc
+     * @returns {Array<Person>}
+     */
+    #filter_var(attribute, filter, filterFunc) {
+        for (let person of this.#persons.values()) {
+
+            let attr = person.get(attribute);
+
+            if (attr !== undefined &&
+                filterFunc(attr.toString().toLowerCase().trim(), filter)){
+                this.#displayed_persons.push(person);
+            }
         }
     }
 
@@ -163,43 +194,6 @@ export class PersonController{
     static #filter_includes(attribute, filter) {
         // *filter*
         return attribute.includes(filter);
-    }
-
-    /**
-     *
-     * @param {string} filter
-     * @param {CallableFunction} filterFunc
-     * @returns {Array<Person>}
-     */
-    #filter_name(filter, filterFunc) {
-        for (let person of this.#persons.values()) {
-            if ((person.get("name") !== undefined && filterFunc(person.get("name").toLowerCase().trim(), filter)) ||
-                (person.get("firstname") !== undefined && filterFunc(person.get("firstname").toLowerCase().trim(), filter)) ||
-                (person.get("surname") !== undefined && filterFunc(person.get("surname").toLowerCase().trim(), filter)) ||
-                (person.get("nickname") !== undefined && filterFunc(person.get("nickname").toLowerCase().trim(), filter)) ||
-                filterFunc(person.uid().toLowerCase().trim(), filter)) {
-                this.#displayed_persons.push(person);
-            }
-        }
-    }
-
-    /**
-     *
-     * @param {string} attribute
-     * @param {string} filter
-     * @param {CallableFunction} filterFunc
-     * @returns {Array<Person>}
-     */
-    #filter_var(attribute, filter, filterFunc) {
-        for (let person of this.#persons.values()) {
-
-            let attr = person.get(attribute);
-
-            if (attr !== undefined &&
-                filterFunc(attr.toString().toLowerCase().trim(), filter)){
-                this.#displayed_persons.push(person);
-            }
-        }
     }
 
 }

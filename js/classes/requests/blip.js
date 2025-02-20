@@ -45,7 +45,6 @@ export class Blip extends API {
             .path("all")
             .access_token(Bolklogin.getAccessToken())
             .build();
-        console.debug("Requesting person: " + url);
 
         new Request(Request.RequestType.GET, url, (status, response) =>{
             if (status === 200) {
