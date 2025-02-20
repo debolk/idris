@@ -1,6 +1,7 @@
 import {Person} from "./classes/person";
 import {Blip} from "./classes/requests/blip";
 import {Storage} from "./classes/helpers/storage";
+import {Bolklogin} from "./classes/requests/bolklogin";
 
 /**
  * @type {Person}
@@ -8,6 +9,7 @@ import {Storage} from "./classes/helpers/storage";
 let person_object;
 
 function load() {
+    if ( !Bolklogin.checkLoggedIn() ) return;
 
     console.debug("Populating person page...");
 
@@ -78,7 +80,7 @@ export function edit() {
 
         } else if (type === "bool") {
             e.type = "checkbox";
-            e.checkbox = e.value === "yes";
+            e.checked = person_object.get('dead');
 
         } else if (type === "options") {
             if (attribute === "membership") {
@@ -90,7 +92,7 @@ export function edit() {
                     "donor", "honorary_member", "member_of_merit", "external"].forEach((v) => {
                     let option = document.createElement("option");
                     let display = v.replaceAll("_", " ");
-                    if (display === e.innerHTML) select = index;
+                    if (v === person_object.get('membership')) select = index;
                     option.value = v;
                     option.innerHTML = display;
                     e.options.add(option);
@@ -117,20 +119,24 @@ function save() {
 
         let person_attr = person_object.get(attribute);
 
-        if (value === "") value = undefined;
+        if (value === "") value = null;
 
-        if (person_attr === undefined && value === undefined) {
+
+        if (person_attr === undefined && value === null) {
             continue;
         }
 
         if (type === "multiline_string") {
-            value = old.innerHTML;
 
-            if (attribute !== "address") {
-                if (person_attr !== undefined &&
-                    person_attr !== value &&
-                    person_attr.join("\n") !== value)
+            if (attribute !== "address" && person_attr !== undefined &&
+                person_attr !== value) {
+
+                console.debug(value, typeof value);
+
+                if ((typeof person_attr === "string" && person_attr !== value) ||
+                    (typeof person_attr !== "string" && person_attr.join('\n') !== value)) {
                     person_object.set(attribute, value.split('\n'));
+                }
                 continue;
             }
 
@@ -150,7 +156,6 @@ function save() {
         }
     }
     person_object.save();
-    // location.reload()
 }
 
 load();

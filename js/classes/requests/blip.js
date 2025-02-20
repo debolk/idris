@@ -53,7 +53,7 @@ export class Blip extends API {
         });
     }
 
-    static patchPerson(uid, data) {
+    static patchPerson(uid, data, callback = null) {
         console.debug(data, "Blip/patchPerson");
         new Request(Request.RequestType.PATCH, new URLBuilder(Storage.BLIP_ADDRESS)
             .path("person")
@@ -63,6 +63,7 @@ export class Blip extends API {
             .build(), (status, response) => {
             if (status === 200) {
                 console.log(response);
+                if (callback != null) callback(status, response);
             }
         }, data);
     }

@@ -81,7 +81,6 @@ export class Bolklogin extends API {
                     Storage.setVariable(Storage.STORAGE.EXPIRY_TOKEN_STORAGE, expiry.getTime());
                     setTimeout(this.refreshToken, expires * 1000);
 
-                    document.getElementById("content").innerHTML = "<p>Welcome, " + data['user_id'] + "</p>";
                     location.replace(Storage.APP_ADDRESS);
                 } else {
                     alert("WARNING: access_token not valid"); //TODO restart process

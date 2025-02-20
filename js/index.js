@@ -14,7 +14,7 @@ let filter_timeout;
 
 function load() {
     console.info("Populating index page...");
-    if ( !Bolklogin.checkLoggedIn() ) return; //TODO do something else with errors etc.
+    if ( !Bolklogin.checkLoggedIn() ) return;
 
     else if ( personcontroller === null || personcontroller === undefined ){
         Blip.getAll((response) => {

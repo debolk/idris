@@ -110,7 +110,9 @@ export class Person {
                 to_save[k] = v;
             })
             console.debug(print);
-            Blip.patchPerson(this.uid(), JSON.stringify(to_save));
+            Blip.patchPerson(this.uid(), JSON.stringify(to_save), (s, r) => {
+                location.reload();
+            });
         }
     }
 
