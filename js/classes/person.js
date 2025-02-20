@@ -1,4 +1,5 @@
 import {Blip} from "./requests/blip";
+import {PersonController} from "./persons_controller";
 
 export class Person {
 
@@ -21,6 +22,7 @@ export class Person {
     programme;
     institution;
     dead;
+    photo;
 
     available_attributes = {
         "initials": "string",
@@ -65,19 +67,31 @@ export class Person {
         this.programme = json.programme;
         this.institution = json.institution;
         this.dead = json.dead;
+        this.photo = null;
     }
 
+    /**
+     *
+     * @param {string} json
+     * @returns {PersonController}
+     */
     static fromArray(json) {
-        let persons = [];
+        let persons = new PersonController();
         json = JSON.parse(json);
         for (let entry of json){
-            persons.push(new Person(entry));
+            persons.add_person(new Person(entry))
         }
         return persons;
     }
 
-    getPhoto(width, height, callback){
-        Blip.getPersonPhoto(this.uid, width, height, callback)
+    getPhoto(callback) {
+        if (this.photo !== null) {
+            callback(this.photo);
+        }
+        Blip.getPersonPhoto(this.uid, (response) => {
+            this.photo = response;
+            callback(response);
+        });
     }
 
     get(var_name){

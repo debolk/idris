@@ -6,9 +6,9 @@ import {URLBuilder} from "../helpers/url_builder";
 
 export class Blip extends API {
 
-    static getAll(request, callback) {
+    static getAll(callback) {
         new Request(Request.RequestType.GET, new URLBuilder(Storage.BLIP_ADDRESS)
-            .path(request)
+            .path('/persons/all')
             .access_token(Bolklogin.getAccessToken())
             .build(), (status, response) => {
             if (status === 200) {
@@ -17,27 +17,11 @@ export class Blip extends API {
         });
     }
 
-    static getAllMembers(callback) {
-        Blip.getAll("members", callback);
-    }
-
-    static getCurrentMembers(callback) {
-        Blip.getAll("members/current", callback);
-    }
-
-    static getFormerMembers(callback) {
-        Blip.getAll("members/former", callback);
-    }
-
-    static getCandidateMembers(callback) {
-        Blip.getAll("members/candidate", callback);
-    }
-
     static newPerson() {
 
     }
 
-    static getPersonPhoto(uid, width, height, callback) {
+    static getPersonPhoto(uid, callback) {
         let url = new URLBuilder(Storage.BLIP_ADDRESS)
             .path("person")
             .path(uid)
