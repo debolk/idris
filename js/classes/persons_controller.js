@@ -3,6 +3,19 @@ import {Storage} from "./helpers/storage";
 
 export class PersonController{
 
+    static #default_filters = {
+        'name': this.#filter_startswith,
+        'dateofbirth': this.#filter_includes,
+        'membership': this.#filter_exact,
+        'phone': this.#filter_includes,
+        'phone_emergency': this.#filter_includes,
+        'email': this.#filter_startswith,
+        'address': this.#filter_startswith,
+        'institution': this.#filter_startswith,
+        'programme': this.#filter_includes,
+        'inauguration_date': this.#filter_startswith
+    }
+
     /**
      *
      * @type {Map<string, Person>}
@@ -69,37 +82,36 @@ export class PersonController{
 
         let filterFunc;
 
+
         if (filter === "*") {
 
             this.#displayed_persons = this.#persons;
             return;
 
-        } else if (attribute === 'membership' ||
-            (filter.startsWith("\"") && filter.endsWith("\""))) {
+        } else if (filter.startsWith("\"") && filter.endsWith("\"")) {
 
-            filterFunc = this.#filter_exact;
-            if (filter.startsWith("\"") && filter.endsWith("\"")) {
-                filter = filter.substring(1, filter.length - 1);
-            }
+            filterFunc = PersonController.#filter_exact;
+            filter = filter.substring(1, filter.length - 1);
 
         } else if (filter.startsWith("*") && filter.endsWith("*")){
 
-            filterFunc = this.#filter_includes;
+            filterFunc = PersonController.#filter_includes;
             filter = filter.substring(1, filter.length - 1);
 
         } else if (filter.startsWith("*")) {
 
-            filterFunc = this.#filter_endswith;
+            filterFunc = PersonController.#filter_endswith;
             filter = filter.substring(1);
 
-        } else { //by default search as if filter = filter*
+        } else if (filter.endsWith("*")) {
 
-            filterFunc = this.#filter_startswith;
-            if (filter.endsWith("*")) {
-                filter = filter.substring(0, filter.length - 1);
-            }
+            filterFunc = PersonController.#filter_startswith;
+            filter = filter.substring(0, filter.length - 1);
 
+        } else {
+            filterFunc = PersonController.#default_filters[attribute];
         }
+
         filter = filter.toLowerCase().trim();
         console.debug(filter, attribute, filterFunc);
 
@@ -116,7 +128,7 @@ export class PersonController{
      * @param {string} filter
      * @returns {boolean}
      */
-    #filter_exact(attribute, filter) {
+    static #filter_exact(attribute, filter) {
         return attribute === filter;
     }
 
@@ -126,7 +138,7 @@ export class PersonController{
      * @param {string} filter
      * @returns {boolean}
      */
-    #filter_startswith(attribute, filter) {
+    static #filter_startswith(attribute, filter) {
         // filter*
         return attribute.startsWith(filter);
     }
@@ -137,7 +149,7 @@ export class PersonController{
      * @param {string} filter
      * @returns {boolean}
      */
-    #filter_endswith(attribute, filter) {
+    static #filter_endswith(attribute, filter) {
         // *filter
         return attribute.endsWith(filter);
     }
@@ -148,7 +160,7 @@ export class PersonController{
      * @param {string} filter
      * @returns {boolean}
      */
-    #filter_includes(attribute, filter) {
+    static #filter_includes(attribute, filter) {
         // *filter*
         return attribute.includes(filter);
     }
