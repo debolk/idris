@@ -31,9 +31,35 @@ function load() {
     }
 
     document.getElementById('filter_value').onkeydown = filter_timer;
+    set_membership_filter();
+
     document.getElementById('filter_attribute').oninput = () => {
         document.getElementById('filter_value').value = '';
+        set_membership_filter();
     };
+}
+
+function set_membership_filter() {
+    let input_element = document.getElementById('filter_input');
+
+    if (document.getElementById('filter_attribute').value === "membership" &&
+        input_element.children.item(0).tagName.toLowerCase() === "input") {
+        input_element.innerHTML = "<select id=\"filter_value\">\n" +
+            "    <option value=\"member\">Member</option>\n" +
+            "    <option value=\"candidate_member\">Candidate member</option>\n" +
+            "    <option value=\"former_member\">Former member</option>\n" +
+            "    <option value=\"ex_member\">Ex member</option>\n" +
+            "    <option value=\"donor\">Donor</option>\n" +
+            "    <option value=\"honorary_member\">Honorary member</option>\n" +
+            "    <option value=\"member_of_merit\">Member of merit</option>\n" +
+            "    <option value=\"external\">External</option>\n" +
+            "  </select>"
+        input_element.children.item(0).oninput = filter;
+
+    } else if (input_element.children.item(0).tagName.toLowerCase() === "select") {
+        input_element.innerHTML = "<input type=\"text\" id=\"filter_value\">"
+        input_element.children.item(0).onkeydown = filter_timer;
+    }
 }
 
 function filter_timer() {
