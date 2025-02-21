@@ -111,7 +111,12 @@ export class Person {
             })
             console.debug(print);
             Blip.patchPerson(this.uid(), JSON.stringify(to_save), (s, r) => {
-                location.reload();
+
+                if (s !== 200) {
+                    Storage.display_error(r);
+                } else {
+                    location.reload();
+                }
             });
         }
     }

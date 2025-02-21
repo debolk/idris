@@ -61,10 +61,7 @@ export class Blip extends API {
             .path("update")
             .access_token(Bolklogin.getAccessToken())
             .build(), (status, response) => {
-            if (status === 200) {
-                console.log(response);
-                if (callback != null) callback(status, response);
-            }
+            if (callback != null) callback(status, response);
         }, data);
     }
 
