@@ -42,7 +42,7 @@ export class Storage {
                 error.after(document.createElement("br"));
             }
 
-            error.innerHTML = message.replace(', ', ".<br>Data invalid: ");
+            error.innerHTML = message.replaceAll(', ', ".<br>Data invalid: ");
         }
     }
 

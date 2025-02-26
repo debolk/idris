@@ -13,11 +13,14 @@
     text-align: center;
     overflow: visible;
     vertical-align: top;
+    text-decoration: none;
 }
 
 .person h4{
+    text-decoration: none;
+    color: black;
     margin-top: 10px;
-    background-color: #B5B9B1A3;
+    background-color: #B5B8B1A3;
     border-radius: 8px;
 }
 
