@@ -18,12 +18,12 @@
 
 <div id="topnav">
 
-  <div onclick="location.reload()">
+  <a class="main" href="https://idris.i.bolkhuis.nl/">
     <img src="images/favicon.svg" alt="I.D.R.I.S. Logo">
     <h1>I.D.R.I.S.</h1>
-  </div>
+  </a>
 
-  <a><select id="filter_attribute">
+  <a class="additional"><select id="filter_attribute">
     <option value="name">Name</option>
     <option value="dateofbirth">Date of birth</option>
     <option value="membership">Membership</option>
@@ -35,15 +35,15 @@
     <option value="programme">Programme</option>
     <option value="inauguration_date">Inauguration date</option>
   </select></a>
-  <a id="filter_input"><input type="text" id="filter_value"></a>
+  <a class="additional" id="filter_input"><input type="text" id="filter_value"></a>
 
-  <a href="person/new"><p>New member</p></a>
-  <a href="export"><p>Export</p></a>
+  <a class="additional" href="person/new"><p>New member</p></a>
+  <a class="additional" href="export"><p>Export</p></a>
 
 </div>
-<div id="content"></div>
+<div class="additional" id="content"></div>
 
-<div id="personsgrid"></div>
+<div class="additional" id="personsgrid"></div>
 
 
 </body>

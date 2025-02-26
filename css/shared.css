@@ -34,7 +34,7 @@ body{
     z-index: 64;
 }
 
-#topnav div {
+#topnav .main {
     height: 100%;
     max-height: 100%;
     width: fit-content;
@@ -42,21 +42,23 @@ body{
     text-align: left;
 }
 
-#topnav div h1 {
+#topnav .main h1 {
     position: absolute;
     margin: auto;
     top: 3.5vh;
     padding-left: 9.5vh;
+    text-decoration: none;
+    color: black;
 }
 
-#topnav div img{
+#topnav .main img{
     position: absolute;
     margin-top: 0.5vh;
     margin-left: 0.5vh;
     max-height: 9vh;
 }
 
-#topnav a {
+#topnav .additional {
     height: 100%;
     max-height: 100%;
     top: 0;
@@ -70,7 +72,7 @@ body{
     font-size: large;
 }
 
-#topnav a p {
+#topnav .additional p, #topnav .additional h1 {
     text-decoration: none;
     color: black;
     margin: auto;
