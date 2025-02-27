@@ -11,7 +11,7 @@ export class Storage {
         REFRESH_TOKEN: "refresh_token"
     });
 
-    static APP_REDIRECT_ADDRESS = "https://idris.i.bolkhuis.nl/login";
+    static APP_REDIRECT_ADDRESS = "https://idris.i.bolkhuis.nl/?login";
     static APP_ADDRESS = "https://idris.i.bolkhuis.nl";
     static LOGIN_ADDRESS = "https://auth.i.bolkhuis.nl/";
     static BLIP_ADDRESS = "https://blip2.i.bolkhuis.nl";
@@ -56,5 +56,9 @@ export class Storage {
 
     static setVariable(name, value) {
         sessionStorage.setItem(name, value.toString());
+    }
+
+    static clearStorage() {
+        sessionStorage.clear();
     }
 }

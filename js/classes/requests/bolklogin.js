@@ -5,6 +5,12 @@ import {Request} from "./request";
 
 export class Bolklogin extends API {
 
+    static restartProcess() {
+        console.warn("Restarting login process...");
+        Storage.clearStorage();
+        location.replace(Storage.APP_ADDRESS);
+    }
+
     static getAccessToken() {
         return Storage.getVariable(Storage.STORAGE.ACCESS_TOKEN_STORAGE);
     }
@@ -26,13 +32,13 @@ export class Bolklogin extends API {
         }, json);
     }
 
-    static login() {
+    static login(redirected = false) {
 
         console.debug("Logging in...");
 
         let login_state = this.checkLoginState();
 
-        if ( !(location.href.includes("/login")) && !login_state ) {
+        if ( !redirected && !login_state ) {
 
             let uri = new URLBuilder(Storage.LOGIN_ADDRESS)
                 .path("authenticate")
@@ -43,13 +49,18 @@ export class Bolklogin extends API {
                 .build();
 
             location.replace(uri);
+            return false;
 
         } else if ( !login_state ) {
             let state = this.getParameter("state");
 
             if ( state !== this.getStateID() ) {
-                if ( state === "1" ) console.log("ERROR"); //TODO: CREATE ERROR PAGE ACCESS DENIED
-                else alert("WARNING: THE STATE PARAMETER DID NOT MATCH\nYou might be at risk of a CSRF-attack."); //TODO RESTART PROCESS
+                if ( state === "1" ) return false; //TODO: CREATE ERROR PAGE ACCESS DENIED
+                else {
+                    alert("WARNING: THE STATE PARAMETER DID NOT MATCH\nYou might be at risk of a CSRF-attack.");
+                    this.restartProcess();
+                    return false;
+                }
             } else {
                 this.requestToken({"grant_type": "authorization_code"
                     , "redirect_uri": Storage.APP_REDIRECT_ADDRESS
@@ -59,7 +70,7 @@ export class Bolklogin extends API {
             }
         }
 
-        return false; //TODO is this necessary?
+        return login_state;
     }
 
     static validateToken(access_token, refresh_token, expires) {
@@ -83,7 +94,8 @@ export class Bolklogin extends API {
 
                     location.replace(Storage.APP_ADDRESS);
                 } else {
-                    alert("WARNING: access_token not valid"); //TODO restart process
+                    alert("WARNING: access_token not valid");
+                    this.restartProcess();
                 }
             }
         })
@@ -100,6 +112,9 @@ export class Bolklogin extends API {
 
     static checkLoggedIn() {
         if (!this.checkLoginState()) {
+            if (location.href.startsWith(Storage.APP_REDIRECT_ADDRESS)) {
+                return this.login(true);
+            }
             alert("Welcome to I.D.R.I.S.\nPlease press OK to log in.");
             this.login();
             return false;
@@ -128,14 +143,14 @@ export class Bolklogin extends API {
         return logged_in;
     }
 
-    static async checkAuthorization() {
+    static checkAuthorization(callback) {
         new Request(
             Request.RequestType.POST, new URLBuilder(Storage.LOGIN_ADDRESS)
                 .path("bestuur")
                 .access_token(Bolklogin.getAccessToken())
                 .build(),
             (status, response) => {
-                return status === 200;
+                callback(status, response);
             });
     }
 }

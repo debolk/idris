@@ -12,11 +12,23 @@ let photo_queue = [];
 let personcontroller;
 let filter_timeout;
 
-function load() {
-    console.info("Populating index page...");
+function preload() {
     if ( !Bolklogin.checkLoggedIn() ) return;
 
-    else if ( personcontroller === null || personcontroller === undefined ){
+    Bolklogin.checkAuthorization((status, response) => {
+        if (status === 200) {
+            console.debug("Login is okay, loading page...");
+            load();
+        } else {
+            Storage.display_error("You are not authorized to access this page.");
+        }
+    });
+};
+
+function load() {
+    if ( personcontroller === null || personcontroller === undefined ){
+
+        console.debug("Populating index page...");
         Blip.getAll((response) => {
 
             personcontroller = Person.fromArray(response);
@@ -126,4 +138,4 @@ function getNextPhoto() {
     })
 }
 
-load();
+preload();
