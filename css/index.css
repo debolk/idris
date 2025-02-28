@@ -1,3 +1,11 @@
+#content {
+    top: 10.5vh;
+    position: absolute;
+    width: 100vw;
+    left: 0;
+    z-index: 100;
+}
+
 #personsgrid{
     top: 10.5vh;
     position: absolute;

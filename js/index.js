@@ -16,6 +16,7 @@ function preload() {
     if ( !Bolklogin.checkLoggedIn() ) return;
 
     Bolklogin.checkAuthorization((status, response) => {
+        console.debug("TEST");
         if (status === 200) {
             console.debug("Login is okay, loading page...");
             load();

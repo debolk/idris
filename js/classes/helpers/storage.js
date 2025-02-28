@@ -38,7 +38,11 @@ export class Storage {
                 error.style.paddingLeft = "4px";
                 error.style.paddingRight = "4px";
 
-                content.firstChild.before(error);
+                if (content.children.length > 0) {
+                    content.firstChild.before(error);
+                } else {
+                    content.appendChild(error);
+                }
                 error.after(document.createElement("br"));
             }
 
