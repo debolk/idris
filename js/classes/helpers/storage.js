@@ -3,12 +3,14 @@ export class Storage {
         ACCESS_TOKEN_STORAGE: "bolk-access-token",
         REFRESH_TOKEN_STORAGE: "bolk-refresh-token",
         EXPIRY_TOKEN_STORAGE: "bolk-token-expiry",
-        STATE_ID: "stateID"
+        STATE_ID: "stateID",
+        USER_ID: "user_id"
     });
     static PARAMETERS = Object.freeze({
         ACCESS_TOKEN: "access_token",
         EXPIRES: "expires_in",
-        REFRESH_TOKEN: "refresh_token"
+        REFRESH_TOKEN: "refresh_token",
+        USER_ID: "user_id"
     });
 
     static APP_REDIRECT_ADDRESS = "https://idris.i.bolkhuis.nl/?login";
@@ -35,8 +37,9 @@ export class Storage {
                 error.style.color = 'darkred';
                 error.style.backgroundColor = 'lightgrey';
                 error.style.borderRadius = "8px";
-                error.style.paddingLeft = "4px";
-                error.style.paddingRight = "4px";
+                error.style.paddingLeft = "5px";
+                error.style.paddingRight = "5px";
+                error.style.paddingTop = "5px";
 
                 if (content.children.length > 0) {
                     content.firstChild.before(error);

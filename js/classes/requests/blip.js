@@ -63,6 +63,18 @@ export class Blip extends API {
         }, data);
     }
 
+    static patchPassword(uid, data, callback = null) {
+        console.debug(data, "Blip/patchPassword");
+        new Request(Request.RequestType.PATCH, new URLBuilder(Storage.BLIP_ADDRESS)
+            .path("person")
+            .path(uid)
+            .path("password")
+            .access_token(Bolklogin.getAccessToken())
+            .build(), (status, response) => {
+            if (callback != null) callback(status, response);
+        }, data);
+    }
+
     static newPerson(data, callback = null) {
         console.debug(data, "Blip/newPerson");
         new Request(Request.RequestType.POST, new URLBuilder(Storage.BLIP_ADDRESS)

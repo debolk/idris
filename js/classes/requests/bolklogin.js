@@ -90,6 +90,7 @@ export class Bolklogin extends API {
                     Storage.setVariable(Storage.STORAGE.ACCESS_TOKEN_STORAGE, access_token);
                     Storage.setVariable(Storage.STORAGE.REFRESH_TOKEN_STORAGE, refresh_token);
                     Storage.setVariable(Storage.STORAGE.EXPIRY_TOKEN_STORAGE, expiry.getTime());
+                    Storage.setVariable(Storage.STORAGE.USER_ID, data[Storage.PARAMETERS.USER_ID]);
                     setTimeout(this.refreshToken, expires * 1000);
 
                     location.replace(Storage.APP_ADDRESS);

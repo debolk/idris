@@ -9,6 +9,8 @@ import {Storage} from "/js/classes/helpers/storage";
  */
 let person_object;
 
+const placeholders = {"firstname": "First name", "surname": "Surname", "phone": "Phone number", "email": "Email address", "phone_emergency": "Emergency contact"}
+
 function preload() {
     if ( !Bolklogin.checkLoggedIn() ) return;
 
@@ -26,6 +28,7 @@ function load(){
     if (location.search === "?new") {
         person_object = Person.fromEmpty();
         populatePage(person_object);
+        document.getElementById("delete").style.display = "none";
         edit();
 
     } else if (location.search.startsWith("?uid")) {
@@ -94,6 +97,10 @@ function edit() {
 
         let e = document.createElement("input")
         e.value = old.innerHTML;
+
+        if (attribute in placeholders){
+            e.placeholder = placeholders[attribute];
+        }
 
         if (type === "string"){
             e.type = "text";

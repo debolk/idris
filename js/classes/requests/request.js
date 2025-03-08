@@ -24,7 +24,13 @@ export class Request {
             callback(408, "Server timed out.");
         }
 
-        if (json != null) request.send(JSON.stringify(json));
+        if (json != null) {
+            if (typeof json === "string") {
+                request.send(json);
+            } else {
+                request.send(JSON.stringify(json));
+            }
+        }
         else request.send();
     }
 }
