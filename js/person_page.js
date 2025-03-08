@@ -63,6 +63,7 @@ function load_person() {
 function populatePage(person) {
     for (let attribute of Person.available_attributes.keys()) {
         let element = document.getElementById(attribute);
+        console.debug(element);
         element.innerHTML = parseAttribute(attribute, person.get(attribute));
     }
 }

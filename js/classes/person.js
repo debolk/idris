@@ -25,7 +25,8 @@ export class Person {
         ["resignation_date", "date"],
         ["programme", "multiline_string"],
         ["institution", "multiline_string"],
-        ["dead", "bool"]
+        ["dead", "bool"],
+        ["no_obligations", "bool"]
     ]);
 
     /**
