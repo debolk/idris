@@ -1,8 +1,14 @@
+@font-face {
+    font-family: Bierstadt;
+    src: url("/BIERSTADT.ttf");
+}
+
 html {
     max-width: 100vw;
     display: block;
     overflow-x: hidden;
     scroll-behavior: smooth;
+    font-family: Bierstadt, serif;
 }
 
 h1 {
@@ -59,16 +65,17 @@ body{
 }
 
 #topnav .additional {
-    height: 100%;
-    max-height: 100%;
+    height: 2.5vh;
+    max-height: 2.5vh;
     top: 0;
     float: right;
     text-align: left;
     text-decoration: none;
     align-content: center;
     vertical-align: middle;
-    padding-left: 0.5%;
-    padding-right: 0.5%;
+    margin: 3.75vh 0.1%;
+    padding-left: 5px;
+    padding-right: 5px;
     font-size: large;
 }
 
@@ -80,4 +87,5 @@ body{
 
 #topnav a:hover {
     background-color: cornflowerblue;
+    border-radius: 5px;
 }

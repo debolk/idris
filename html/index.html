@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <title>I.D.R.I.S. - Ledenadmin</title>
 
-  <script type="module" src="./js/index.js" defer></script>
-  <link rel="icon" href="./images/favicon.ico" sizes="any">
-  <link rel="icon" href="./images/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./css/shared.css">
-  <link rel="stylesheet" href="./css/index.css">
+  <script type="module" src="/js/index.js" defer></script>
+  <link rel="icon" href="/images/favicon.ico" sizes="any">
+  <link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/shared.css">
+  <link rel="stylesheet" href="/css/index.css">
 </head>
 
 <script>;
@@ -19,14 +19,14 @@
 <div id="topnav">
 
   <a class="main" href="https://idris.i.bolkhuis.nl/">
-    <img src="images/favicon.svg" alt="I.D.R.I.S. Logo">
+    <img src="../images/favicon.svg" alt="I.D.R.I.S. Logo">
     <h1>I.D.R.I.S.</h1>
   </a>
 
-  <a class="additional"><select id="filter_attribute">
+  <select id="filter_attribute" class="additional">
     <option value="name">Name</option>
     <option value="dateofbirth">Date of birth</option>
-    <option value="membership">Membership</option>
+    <option value="membership" selected>Membership</option>
     <option value="phone">Phone number</option>
     <option value="phone_emergency">Emergency contact number</option>
     <option value="email">E-mail address</option>
@@ -34,11 +34,13 @@
     <option value="institution">Institution</option>
     <option value="programme">Programme</option>
     <option value="inauguration_date">Inauguration date</option>
-  </select></a>
-  <a class="additional" id="filter_input"><input type="text" id="filter_value"></a>
+  </select>
+  <div class="additional" id="filter_input"><input type="text" id="filter_value"></div>
 
-  <a class="additional" href="person/new"><p>New member</p></a>
+  <a class="additional" href="person?new"><p>New member</p></a>
   <a class="additional" href="export"><p>Export</p></a>
+  <p class="additional" id="users_num"></p>
+
 
 </div>
 

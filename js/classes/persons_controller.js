@@ -33,6 +33,20 @@ export class PersonController{
 
     /**
      *
+     * @param {string} json
+     * @returns {PersonController}
+     */
+    static fromArray(json) {
+        let persons = new PersonController();
+        json = JSON.parse(json);
+        for (let entry of json){
+            persons.add_person(Person.fromArray(entry));
+        }
+        return persons;
+    }
+
+    /**
+     *
      * @returns {Array<Person>}
      */
     getDisplayedPersons() {

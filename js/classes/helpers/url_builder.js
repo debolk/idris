@@ -21,6 +21,11 @@ export class URLBuilder {
     }
 
     path(path) {
+        if (path === undefined || path === null) {
+            console.error(`${path} is null or undefined!`);
+            return this;
+        }
+
         if (path.toString().startsWith("/")) path = path.toString().substring(1);
         if (path.toString().endsWith("/")) path = path.toString().substring(0, path.length - 1);
 

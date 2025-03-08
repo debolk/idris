@@ -17,10 +17,6 @@ export class Blip extends API {
         });
     }
 
-    static newPerson() {
-
-    }
-
     static getPersonPhoto(uid, callback) {
         let url = new URLBuilder(Storage.BLIP_ADDRESS)
             .path("person")
@@ -49,6 +45,8 @@ export class Blip extends API {
         new Request(Request.RequestType.GET, url, (status, response) =>{
             if (status === 200) {
                 callback(response);
+            } else {
+                Storage.display_error("Could not find the person!");
             }
         });
     }
@@ -65,4 +63,13 @@ export class Blip extends API {
         }, data);
     }
 
+    static newPerson(data, callback = null) {
+        console.debug(data, "Blip/newPerson");
+        new Request(Request.RequestType.POST, new URLBuilder(Storage.BLIP_ADDRESS)
+            .path("person")
+            .access_token(Bolklogin.getAccessToken())
+            .build(), (status, response) => {
+           if (callback != null) callback(status, response);
+        }, data);
+    }
 }

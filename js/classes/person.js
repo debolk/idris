@@ -3,17 +3,6 @@ import {PersonController} from "./persons_controller";
 import {Storage} from "./helpers/storage";
 
 export class Person {
-
-    /**
-     * @type {Map<string, any>}
-     */
-    #attributes;
-
-    /**
-     * @type {String}
-     */
-    #photo;
-
     /**
      *
      * @type {Map<string, string>}
@@ -37,44 +26,53 @@ export class Person {
         ["programme", "multiline_string"],
         ["institution", "multiline_string"],
         ["dead", "bool"]
-    ])
+    ]);
+
+    /**
+     * @type {Map<string, any>}
+     */
+    #attributes;
 
     /**
      * @type {Map<string, any>}
      */
     #changed_attributes;
 
-    constructor(json) {
-        if (typeof json === "string") json = JSON.parse(json)
+    /**
+     * @type {String}
+     */
+    #photo;
 
+    constructor() {
         this.#attributes = new Map();
         this.#changed_attributes = new Map();
 
         this.#photo = null;
+    }
+
+    static fromEmpty() {
+        let person = new Person();
+        for (let attribute of this.available_attributes.keys()) {
+            person.#attributes.set(attribute, "");
+        }
+        person.#attributes.set('membership', "candidate_member");
+        return person;
+    }
+
+    static fromArray(json) {
+        if (typeof json === "string") json = JSON.parse(json);
+        let person = new Person();
 
         for (let entry of Object.entries(json)){
-            this.#attributes.set(entry[0], entry[1]);
+            person.#attributes.set(entry[0], entry[1]);
         }
 
         let print = '';
-        this.#attributes.forEach((v, k, m) => {
-          print += `${k}: ${v} ${typeof v}\n`;
+        person.#attributes.forEach((v, k, m) => {
+            print += `${k}: ${v} ${typeof v}\n`;
         });
         console.debug(print);
-    }
-
-    /**
-     *
-     * @param {string} json
-     * @returns {PersonController}
-     */
-    static fromArray(json) {
-        let persons = new PersonController();
-        json = JSON.parse(json);
-        for (let entry of json){
-            persons.add_person(new Person(entry))
-        }
-        return persons;
+        return person;
     }
 
     getPhoto(callback) {
@@ -110,18 +108,28 @@ export class Person {
                 to_save[k] = v;
             })
             console.debug(print);
-            Blip.patchPerson(this.uid(), JSON.stringify(to_save), (s, r) => {
 
-                if (s !== 200) {
-                    Storage.display_error(r);
-                } else {
-                    location.reload();
-                }
-            });
+            if (this.get('uid') !== undefined) {
+                Blip.patchPerson(this.uid(), JSON.stringify(to_save), (s, r) => {
+                    if (s !== 200) {
+                        Storage.display_error(r);
+                    } else {
+                        location.reload();
+                    }
+                });
+            } else {
+                Blip.newPerson(JSON.stringify(to_save), (s, r) => {
+                    if (s !== 200) {
+                        Storage.display_error(r)
+                    } else {
+                        location.replace(Storage.APP_ADDRESS);
+                    }
+                });
+            }
         }
     }
 
-    uid(){
+    uid() {
         return this.get('uid');
     }
 }

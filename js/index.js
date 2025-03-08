@@ -3,6 +3,7 @@ import {Bolklogin} from "./classes/requests/bolklogin";
 import {Person} from "./classes/person";
 import {URLBuilder} from "./classes/helpers/url_builder";
 import {Storage} from "./classes/helpers/storage";
+import {PersonController} from "./classes/persons_controller";
 
 let photo_queue = [];
 
@@ -16,7 +17,6 @@ function preload() {
     if ( !Bolklogin.checkLoggedIn() ) return;
 
     Bolklogin.checkAuthorization((status, response) => {
-        console.debug("TEST");
         if (status === 200) {
             console.debug("Login is okay, loading page...");
             load();
@@ -32,7 +32,7 @@ function load() {
         console.debug("Populating index page...");
         Blip.getAll((response) => {
 
-            personcontroller = Person.fromArray(response);
+            personcontroller = PersonController.fromArray(response);
             personcontroller.default_filter();
             filter();
 
@@ -114,6 +114,12 @@ function loadPersons(){
         photo_queue.push(person.uid());
     }
     photo_queue = photo_queue.reverse();
+    if (persons.length == 1) {
+        document.getElementById("users_num").innerHTML = '1 user';
+    } else {
+        document.getElementById("users_num").innerHTML = `${persons.length} users`;
+    }
+
 
     getNextPhoto();
 }
