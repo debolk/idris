@@ -118,9 +118,9 @@ function loadPersons(){
     photo_queue = photo_queue.reverse();
 
     if (persons.length === 1) {
-        document.getElementById("users_num").innerHTML = '1 user';
+        document.getElementById("users_num").innerHTML = 'Export 1 user';
     } else {
-        document.getElementById("users_num").innerHTML = `${persons.length} users`;
+        document.getElementById("users_num").innerHTML = `Export ${persons.length} users`;
     }
 
 
