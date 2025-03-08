@@ -52,7 +52,7 @@ export class Blip extends API {
     }
 
     static patchPerson(uid, data, callback = null) {
-        console.debug(data, "Blip/patchPerson");
+        console.debug(data);
         new Request(Request.RequestType.PATCH, new URLBuilder(Storage.BLIP_ADDRESS)
             .path("person")
             .path(uid)
@@ -64,7 +64,7 @@ export class Blip extends API {
     }
 
     static patchPassword(uid, data, callback = null) {
-        console.debug(data, "Blip/patchPassword");
+        console.debug(data);
         new Request(Request.RequestType.PATCH, new URLBuilder(Storage.BLIP_ADDRESS)
             .path("person")
             .path(uid)
@@ -76,7 +76,7 @@ export class Blip extends API {
     }
 
     static newPerson(data, callback = null) {
-        console.debug(data, "Blip/newPerson");
+        console.debug(data);
         new Request(Request.RequestType.POST, new URLBuilder(Storage.BLIP_ADDRESS)
             .path("person")
             .access_token(Bolklogin.getAccessToken())
@@ -86,7 +86,7 @@ export class Blip extends API {
     }
 
     static deletePerson(uid, callback = null) {
-        console.debug(uid, "Blip/deletePerson");
+        console.debug(uid);
         new Request(Request.RequestType.DELETE, new URLBuilder(Storage.BLIP_ADDRESS)
             .path("person")
             .path(uid)

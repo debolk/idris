@@ -63,12 +63,16 @@ function load_person() {
 function populatePage(person) {
     for (let attribute of Person.available_attributes.keys()) {
         let element = document.getElementById(attribute);
-        console.debug(element);
-        element.innerHTML = parseAttribute(attribute, person.get(attribute));
+        element.innerHTML = parseAttribute(person.get(attribute));
+        if (attribute.includes("phone")) {
+            element.href = "tel:" + parseAttribute(person.get(attribute));
+        } else if (attribute === "email") {
+            element.href = "mailto:" + parseAttribute(person.get(attribute));
+        }
     }
 }
 
-function parseAttribute(attribute, value) {
+function parseAttribute(value) {
     if (value === undefined) {
         return "";
 
@@ -118,7 +122,7 @@ function edit() {
 
         } else if (type === "bool") {
             e.type = "checkbox";
-            e.checked = person_object.get('dead');
+            e.checked = person_object.get(attribute);
 
         } else if (type === "options") {
             if (attribute === "membership") {

@@ -1,5 +1,4 @@
 import {Blip} from "./requests/blip";
-import {PersonController} from "./persons_controller";
 import {Storage} from "./helpers/storage";
 
 export class Person {
@@ -115,6 +114,7 @@ export class Person {
                     if (s !== 200) {
                         Storage.display_error(r);
                     } else {
+                        alert(`Successfully saved changes in ${this.get("name").endsWith('s') ? this.get("name") + "'" : this.get("name") + "'s"} account`);
                         location.reload();
                     }
                 });
@@ -123,6 +123,7 @@ export class Person {
                     if (s !== 200) {
                         Storage.display_error(r)
                     } else {
+                        alert(`Successfully created ${this.get("name").endsWith('s') ? this.get("name") + "'" : this.get("name") + "'s"} account`);
                         location.replace(Storage.APP_ADDRESS);
                     }
                 });

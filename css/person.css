@@ -64,3 +64,8 @@ td div {
 #delete {
     color: darkred;
 }
+
+a {
+    text-decoration: none;
+    color: black;
+}
