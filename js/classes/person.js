@@ -129,6 +129,19 @@ export class Person {
         }
     }
 
+    toArray() {
+        let data = [];
+        for (let key of Person.available_attributes.keys()){
+            let value = this.get(key);
+            if (value === undefined) value = '';
+            else if (typeof value === "string" && value.toString().includes(",")) {
+                value = '"' + value + '"';
+            }
+            data.push(value);
+        }
+        return data;
+    }
+
     uid() {
         return this.get('uid');
     }

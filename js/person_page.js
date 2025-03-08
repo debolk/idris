@@ -1,7 +1,7 @@
-import {Person} from "./classes/person";
-import {Bolklogin} from "./classes/requests/bolklogin";
-import {Blip} from "./classes/requests/blip";
-import {Storage} from "./classes/helpers/storage";
+import {Person} from "/js/classes/person";
+import {Bolklogin} from "/js/classes/requests/bolklogin";
+import {Blip} from "/js/classes/requests/blip";
+import {Storage} from "/js/classes/helpers/storage";
 
 
 /**
@@ -34,6 +34,7 @@ function load(){
 
     document.getElementById("edit").onclick = edit;
     document.getElementById("save").onclick = save;
+    document.getElementById("delete").onclick = delete_person;
 }
 
 function load_person() {
@@ -50,7 +51,7 @@ function load_person() {
     console.debug("Loading " + person);
 
     Blip.getPerson(person, (response) => {
-        person_object = new Person(response);
+        person_object = Person.fromArray(response);
         populatePage(person_object);
     });
 
@@ -83,7 +84,7 @@ function parseAttribute(attribute, value) {
     return value.replaceAll("_", " ");
 }
 
-export function edit() {
+function edit() {
     for (let entry of Person.available_attributes.entries()) {
         let attribute = entry[0]
         let type = entry[1]
@@ -138,7 +139,7 @@ export function edit() {
     }
 }
 
-export function save() {
+function save() {
     for (let entry of Person.available_attributes.entries()) {
         let attribute = entry[0];
         let type = entry[1];
@@ -180,6 +181,27 @@ export function save() {
         }
     }
     person_object.save();
+}
+
+function delete_person() {
+    Bolklogin.checkAuthorization((status, response) => {
+        if (status === 200) {
+            if (confirm("Do you want to delete " + person_object.get("name"))) {
+                if (!confirm("Select the CANCEL button if you're sure.")){
+                    Blip.deletePerson(person_object.uid(), (s, r) => {
+                        if (s === 200) {
+                            alert("Successfully deleted " + person_object.get("name"));
+                            location.replace(Storage.APP_ADDRESS);
+                        } else{
+                            Storage.display_error(r);
+                        }
+                    });
+                }
+            }
+        } else {
+            Storage.display_error("You are not authorized to do this.");
+        }
+    });
 }
 
 preload();

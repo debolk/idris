@@ -72,4 +72,15 @@ export class Blip extends API {
            if (callback != null) callback(status, response);
         }, data);
     }
+
+    static deletePerson(uid, callback = null) {
+        console.debug(uid, "Blip/deletePerson");
+        new Request(Request.RequestType.DELETE, new URLBuilder(Storage.BLIP_ADDRESS)
+            .path("person")
+            .path(uid)
+            .access_token(Bolklogin.getAccessToken())
+            .build(), (status, response) => {
+           if (callback != null) callback(status, response);
+        });
+    }
 }

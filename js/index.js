@@ -50,6 +50,8 @@ function load() {
         document.getElementById('filter_value').value = '';
         set_membership_filter();
     };
+
+    document.getElementById('export').onclick = export_persons;
 }
 
 function set_membership_filter() {
@@ -114,7 +116,8 @@ function loadPersons(){
         photo_queue.push(person.uid());
     }
     photo_queue = photo_queue.reverse();
-    if (persons.length == 1) {
+
+    if (persons.length === 1) {
         document.getElementById("users_num").innerHTML = '1 user';
     } else {
         document.getElementById("users_num").innerHTML = `${persons.length} users`;
@@ -143,6 +146,13 @@ function getNextPhoto() {
         document.getElementById(`${uid}_photo`).src = "data:image/png;base64, " + response;
         if (photo_queue.length > 0) getNextPhoto();
     })
+}
+
+function export_persons() {
+    let csv = personcontroller.toCSV();
+    const blob = new File([csv], 'export.csv', {type: 'text/csv;charset=utf-8,'})
+    const obj_url = URL.createObjectURL(blob);
+    location.replace(obj_url);
 }
 
 preload();

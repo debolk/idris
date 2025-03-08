@@ -1,6 +1,6 @@
 export class Request {
 
-    static RequestType = {"POST": "POST", "PATCH": "PATCH", "GET": "GET"};
+    static RequestType = {"POST": "POST", "PATCH": "PATCH", "GET": "GET", "DELETE": "DELETE"};
 
     constructor(type, url, callback, json = null, timeout = 0) {
         let request = new XMLHttpRequest();

@@ -58,3 +58,7 @@ td div {
 .contact{
     text-align: center;
 }
+
+#delete {
+    color: darkred;
+}

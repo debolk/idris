@@ -1,5 +1,4 @@
 import {Person} from "./person";
-import {Storage} from "./helpers/storage";
 
 export class PersonController{
 
@@ -43,6 +42,21 @@ export class PersonController{
             persons.add_person(Person.fromArray(entry));
         }
         return persons;
+    }
+
+    toCSV() {
+        if (this.#displayed_persons == null) return;
+        let csv = '';
+        let data = [];
+        data.push(Array.from(Person.available_attributes.keys()));
+        for (let person of this.#displayed_persons) {
+            data.push(person.toArray());
+        }
+
+        data.forEach(row => {
+            csv += row.join(',') + '\n';
+        });
+        return csv;
     }
 
     /**
