@@ -21,7 +21,7 @@ function preload() {
             console.debug("Login is okay, loading page...");
             load();
         } else {
-            Storage.display_error("You are not authorized to access this page.");
+            location.href = "/password";
         }
     });
 };
