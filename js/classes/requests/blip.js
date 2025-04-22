@@ -27,11 +27,15 @@ export class Blip extends API {
 
         new Request(Request.RequestType.GET, url, (status, response) => {
             if (status === 200) {
-                callback(response);
+                let reader = new FileReader();
+                reader.readAsDataURL(response);
+                reader.onloadend = function() {
+                    callback(reader.result);
+                }
             } else {
                 callback(Storage.BROKEN_IMAGE);
             }
-        }, null, 10000);
+        }, null, 10000, false);
     }
 
     static getPerson(uid, callback) {
@@ -48,6 +52,18 @@ export class Blip extends API {
             } else {
                 Storage.display_error("Could not find the person!");
             }
+        });
+    }
+
+    static getPersonBasic(uid, callback) {
+        let url = new URLBuilder(Storage.BLIP_ADDRESS)
+            .path("person")
+            .path(uid)
+            .access_token(Bolklogin.getAccessToken())
+            .build();
+
+        new Request(Request.RequestType.GET, url, (status, response) => {
+           callback(status, response);
         });
     }
 

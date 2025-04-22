@@ -20,7 +20,7 @@ function load() {
 
     console.debug("Loading " + person);
 
-    Blip.getPerson(person, (response) => {
+    Blip.getPersonBasic(person, (status, response) => {
         person_object = Person.fromArray(response);
     });
 

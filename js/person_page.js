@@ -86,10 +86,10 @@ function parseAttribute(value) {
         return "no";
 
     } else if (typeof(value) === "string" && value.includes("\n")) {
-        return value.replaceAll("\n", "<br>").replaceAll("_", " ");
+        return value.replaceAll("\n", "<br>");
 
     }
-    return value.replaceAll("_", " ");
+    return value;
 }
 
 function edit() {

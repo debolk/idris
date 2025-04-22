@@ -2,7 +2,7 @@ export class Request {
 
     static RequestType = {"POST": "POST", "PATCH": "PATCH", "GET": "GET", "DELETE": "DELETE"};
 
-    constructor(type, url, callback, json = null, timeout = 0) {
+    constructor(type, url, callback, json = null, timeout = 0, textResponse = true) {
         let request = new XMLHttpRequest();
 
         request.open(type, url);
@@ -15,7 +15,11 @@ export class Request {
         request.onreadystatechange = () => {
             if (request.readyState === 4) {
                 console.debug('Received response', request.status, request.statusText);
-                callback(request.status, request.responseText);
+                if (textResponse) {
+                    callback(request.status, request.responseText);
+                } else {
+                    callback(request.status, request.response);
+                }
             }
         }
 
@@ -30,6 +34,9 @@ export class Request {
             } else {
                 request.send(JSON.stringify(json));
             }
+        } else if (textResponse === false) {
+            request.responseType = "blob";
+            request.send();
         }
         else request.send();
     }

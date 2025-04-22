@@ -143,7 +143,7 @@ function getNextPhoto() {
             getNextPhoto();
             return;
         }
-        document.getElementById(`${uid}_photo`).src = "data:image/png;base64, " + response;
+        document.getElementById(`${uid}_photo`).src = response;
         if (photo_queue.length > 0) getNextPhoto();
     })
 }

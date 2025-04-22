@@ -67,11 +67,11 @@ export class Person {
             person.#attributes.set(entry[0], entry[1]);
         }
 
-        let print = '';
-        person.#attributes.forEach((v, k, m) => {
-            print += `${k}: ${v} ${typeof v}\n`;
-        });
-        console.debug(print);
+        //let print = '';
+        //person.#attributes.forEach((v, k, m) => {
+        //    print += `${k}: ${v} ${typeof v}\n`;
+        //});
+        //console.debug(print);
         return person;
     }
 
