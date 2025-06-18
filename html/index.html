@@ -19,33 +19,32 @@
 
 <div id="topnav">
 
-  <a class="main" href="https://idris.i.bolkhuis.nl/">
+  <a id="main" href="https://idris.i.bolkhuis.nl/">
     <img src="../images/favicon.svg" alt="I.D.R.I.S. Logo">
     <h1>I.D.R.I.S.</h1>
   </a>
 
-  <select id="filter_attribute" class="additional">
-    <option value="name">Name</option>
-    <option value="dateofbirth">Date of birth</option>
-    <option value="membership" selected>Membership</option>
-    <option value="phone">Phone number</option>
-    <option value="phone_emergency">Emergency contact number</option>
-    <option value="email">E-mail address</option>
-    <option value="address">Address</option>
-    <option value="institution">Institution</option>
-    <option value="programme">Programme</option>
-    <option value="inauguration_date">Inauguration date</option>
-  </select>
-  <div class="additional" id="filter_input"><input type="text" id="filter_value"></div>
-
-  <a class="additional" href="person?new"><p>New member</p></a>
-  <a class="additional" id="export" href="#"><p class="additional" id="users_num">Export</p></a>
-  <a class="additional" id="password" href="password"><p>Change your password</p></a>
-
+  <a href="person?new"><p>New member</p></a>
+  <div id="filter_input"><input type="text" id="filter_value"></div>
+  <div>
+    <select id="filter_attribute">
+      <option value="name">Name</option>
+      <option value="dateofbirth">Date of birth</option>
+      <option value="membership" selected>Membership</option>
+      <option value="phone">Phone number</option>
+      <option value="phone_emergency">Emergency contact number</option>
+      <option value="email">E-mail address</option>
+      <option value="address">Address</option>
+      <option value="institution">Institution</option>
+      <option value="programme">Programme</option>
+      <option value="inauguration_date">Inauguration date</option>
+    </select>
+  </div>
+  <a id="export" href="#"><p id="users_num">Export</p></a>
 </div>
 
-<div class="additional" id="content"></div>
-<div class="additional" id="personsgrid"><h1>Loading...</h1></div>
+<div id="content"></div>
+<div id="personsgrid"><h1>Loading...</h1></div>
 
 <p id="idris-version"></p>
 </body>

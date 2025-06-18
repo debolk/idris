@@ -38,70 +38,87 @@ p {
 }
 
 body{
-    background-color: #E34234;
+    background-color: #9f0000;
     background-image: url("../images/background.svg");
     background-repeat: repeat;
 }
 
 #topnav {
-    display: inline;
-    margin: 0 0 1vh;
-    background-color: #B5B8B1;
+    display: flex;
+    margin: 0 0 1rem;
+    background-color: #690000;
     position: fixed;
-    height: 10vh;
-    width: 100%;
+    height: 6.5rem;
+    width: 100vw;
     top: 0;
     left: 0;
     overflow: hidden;
     z-index: 64;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: row;
 }
 
-#topnav .main {
-    height: 100%;
-    max-height: 100%;
-    width: fit-content;
-    float: left;
+#topnav #main {
+    display: flex;
     text-align: left;
+    align-items: center;
+    padding: 0.25rem;
+    margin-left: 1rem;
+    margin-right: auto;
 }
 
-#topnav .main h1 {
-    position: absolute;
+#topnav #main:hover {
+    background: none;
+}
+
+#topnav #main h1 {
     margin: auto;
-    top: 3.5vh;
-    padding-left: 9.5vh;
     text-decoration: none;
-    color: black;
+    color: #B5B8B1;
 }
 
-#topnav .main img{
-    position: absolute;
-    margin-top: 0.5vh;
-    margin-left: 0.5vh;
-    max-height: 9vh;
+#topnav #main img{
+    margin-left: 0.5rem;
+    max-height: 5rem;
+    position: relative;
+    top: -0.5rem;
 }
 
-#topnav .additional {
-    height: 2.5vh;
-    max-height: 2.5vh;
-    top: 0;
-    float: right;
+#topnav #password {
+    margin-left: auto;
+}
+
+#topnav p, #topnav div {
     text-align: left;
-    text-decoration: none;
     align-content: center;
-    vertical-align: middle;
-    margin: 3.75vh 0.1%;
-    padding-left: 5px;
-    padding-right: 5px;
-    font-size: large;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    margin-right: 0.5rem;
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 1.5rem;
+    color: inherit;
+    font-weight: bold;
 }
 
-#topnav .additional p, #topnav .additional h1 {
+#topnav input, #topnav select{
+    font-size: 1.25rem;
+}
+
+#export {
+    margin-right: 1rem;
+}
+
+#topnav a{
+    color: #B5B8B1;
     text-decoration: none;
-    color: black;
-    margin: auto;
 }
 
 #topnav a:hover {
-    background-color: cornflowerblue;
+    background-color: deepskyblue;
+    color: black;
     border-radius: 5px;
 }

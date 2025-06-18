@@ -7,34 +7,37 @@
 }
 
 #personsgrid{
-    top: 10.5vh;
+    top: 7rem;
     position: absolute;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    align-items: flex-start;
     width: 100vw;
     left: 0;
 }
 
 .person{
-    display: inline-block;
-    width: 6vw;
-    margin-left: 0.333vw;
-    margin-right: 0.333vw;
+    width: 8rem;
     text-align: center;
     overflow: visible;
     vertical-align: top;
     text-decoration: none;
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
 }
 
 .person h4{
     text-decoration: none;
     color: black;
-    margin-top: 10px;
+    margin-top: 0.625rem;
     background-color: #B5B8B1A3;
-    border-radius: 8px;
+    border-radius: 0.5rem;
 }
 
 .person img {
-    width: calc(6vw - 2px);
-    height: calc(6vw - 2px);
+    width: 7rem;
+    height: 7rem;
     object-fit: contain;
     border: 1px solid black;
     background-color: #B5B8B1;
