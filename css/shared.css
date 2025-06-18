@@ -21,6 +21,22 @@ p {
     display: inline-block;
 }
 
+#idris-version {
+    position: fixed;
+    font-weight: bold;
+    bottom: 0;
+    right: 0;
+    margin: 0.5rem;
+    padding: 0.5rem;
+    color: black;
+    z-index: 100;
+}
+
+#idris-version:hover {
+    color: white;
+    background-color: #000000A4;
+}
+
 body{
     background-color: #E34234;
     background-image: url("../images/background.svg");
