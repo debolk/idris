@@ -1,4 +1,5 @@
 import {Person} from "./person";
+import {Blip} from "./requests/blip";
 
 export class PersonController{
 
@@ -42,6 +43,20 @@ export class PersonController{
             persons.add_person(Person.fromArray(entry));
         }
         return persons;
+    }
+
+
+    static emailRegistered(email, on_registered, on_unregistered) {
+        Blip.getAllBasic((response) => {
+            let json = JSON.parse(response);
+            for (let json_person of json) {
+                if (json_person["email"].toLowerCase() === email.toLowerCase()) {
+                    on_registered(json_person["name"], json_person["membership"]);
+                    return;
+                }
+            }
+            on_unregistered();
+        });
     }
 
     toCSV() {

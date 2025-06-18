@@ -1,5 +1,6 @@
 import {Blip} from "./requests/blip";
 import {Storage} from "./helpers/storage";
+import {PersonController} from "./persons_controller";
 
 export class Person {
     /**
@@ -102,7 +103,7 @@ export class Person {
     save() {
         if (this.#changed_attributes.size > 0) {
             let to_save = {};
-            let print = 'Changed attribute(s):\n';
+            let print = 'Attribute(s):\n';
             this.#changed_attributes.forEach((v, k, m) => {
                 print += `${k}: ${v}\n`;
                 to_save[k] = v;
@@ -119,14 +120,19 @@ export class Person {
                     }
                 });
             } else {
-                Blip.newPerson(JSON.stringify(to_save), (s, r) => {
+                let create_person = () => Blip.newPerson(JSON.stringify(to_save), (s, r) => {
                     if (s !== 200) {
                         Storage.display_error(r)
                     } else {
-                        alert(`Successfully created ${this.get("name").endsWith('s') ? this.get("name") + "'" : this.get("name") + "'s"} account`);
+
+                        alert(`Successfully created ${to_save["firstname"]} ${to_save["surname"].endsWith('s') ? to_save["surname"] + "'" : to_save["surname"] + "'s"} account`);
                         location.replace(Storage.APP_ADDRESS);
                     }
                 });
+
+                PersonController.emailRegistered(this.#attributes.get("email"), (name, membership) => {
+                    Storage.display_error(`A user with this email address already exists: ${name}<br>They are a(n) ${membership}.`);
+                }, create_person);
             }
         }
     }

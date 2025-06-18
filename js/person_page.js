@@ -87,7 +87,8 @@ function parseAttribute(value) {
 
     } else if (typeof(value) === "string" && value.includes("\n")) {
         return value.replaceAll("\n", "<br>");
-
+    } else if (typeof(value) === "string" && value.includes("_")) {
+        return value.replace("_", " ");
     }
     return value;
 }
@@ -163,12 +164,16 @@ function save() {
 
         if (value === "") value = null;
 
-
         if (person_attr === undefined && value === null) {
+            console.debug(`Skipping ${attribute}`);
             continue;
         }
 
-        if (type === "multiline_string") {
+
+        if (["firstname", "surname", "nickname"].includes(attribute) && value !== null && value !== undefined) {
+            value = value.replace(/^\w/, c => c.toUpperCase()); //capitalize strings
+
+        } else if (type === "multiline_string") {
 
             if (attribute !== "address" && person_attr !== undefined &&
                 person_attr !== value && value !== undefined && value !== null) {
@@ -187,8 +192,8 @@ function save() {
             value = old.checked;
         }
 
-
-        if (person_attr !== value) {
+        if (person_attr !== value || person_object.uid() === undefined) { //always force save new user attributes
+            console.debug(`Setting ${attribute} to ${value}`);
             person_object.set(attribute, value);
         }
     }
