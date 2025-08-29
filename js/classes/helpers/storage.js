@@ -16,7 +16,7 @@ export class Storage {
     static APP_REDIRECT_ADDRESS = "https://idris.i.bolkhuis.nl/?login";
     static APP_ADDRESS = "https://idris.i.bolkhuis.nl";
     static LOGIN_ADDRESS = "https://auth.i.bolkhuis.nl/";
-    static BLIP_ADDRESS = "https://blip2.i.bolkhuis.nl";
+    static BLIP_ADDRESS = "https://blip.i.bolkhuis.nl";
 
     static CLIENT_SECRET = "bWVsb2R5NjR2bw=="
     static CLIENT_ID = "idris";
