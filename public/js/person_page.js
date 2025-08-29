@@ -38,6 +38,7 @@ function load(){
     document.getElementById("edit").onclick = edit;
     document.getElementById("save").onclick = save;
     document.getElementById("delete").onclick = delete_person;
+    document.getElementById("passreset").onclick = reset_password;
 }
 
 function load_person() {
@@ -217,6 +218,17 @@ function delete_person() {
             }
         } else {
             Storage.display_error("You are not authorized to do this.");
+        }
+    });
+}
+
+function reset_password() {
+    Bolklogin.checkAuthorization((status, response) => {
+        if (status === 200) {
+            document.getElementById("header").innerHTML = "Password changed successfully";
+        } else {
+            Storage.display_error(response);
+
         }
     });
 }
