@@ -116,6 +116,9 @@ function loadPersons(){
         photo_queue.push(person.uid());
     }
     photo_queue = photo_queue.reverse();
+    Blip.getPhotos(photo_queue, (response) => {
+        console.debug(response);
+    });
 
     if (persons.length === 1) {
         document.getElementById("users_num").innerHTML = 'Export 1 user';
@@ -124,7 +127,7 @@ function loadPersons(){
     }
 
 
-    getNextPhoto();
+    // getNextPhoto();
 }
 
 function getNextPhoto() {
