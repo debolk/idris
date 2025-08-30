@@ -59,13 +59,11 @@ export class Blip extends API {
             .path("persons")
             .path("photo")
             .parameter("users", uids)
-            .access_token(Bolklogin.getAccessToken)
+            .access_token(Bolklogin.getAccessToken())
             .build();
         
         new Request(Request.RequestType.GET, url, (status, response) => {
-            if (status === 200) {
-                callback(response);
-            }
+                callback(status, response);
         })
     }
 
@@ -122,7 +120,7 @@ export class Blip extends API {
         }, data);
     }
 
-    static patchPassword(uid, data, callback = null) {
+    static patchResetPassword(uid, callback = null) {
         new Request(Request.RequestType.PATCH, new URLBuilder(Storage.BLIP_ADDRESS)
             .path("person")
             .path(uid)
@@ -130,7 +128,7 @@ export class Blip extends API {
             .access_token(Bolklogin.getAccessToken())
             .build(), (status, response) => {
             if (callback != null) callback(status, response);
-        }, data);
+        });
     }
 
     static newPerson(data, callback = null) {

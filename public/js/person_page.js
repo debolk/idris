@@ -223,12 +223,11 @@ function delete_person() {
 }
 
 function reset_password() {
-    Bolklogin.checkAuthorization((status, response) => {
+    Blip.patchResetPassword(person_object.uid(), (status, response) => {
         if (status === 200) {
-            document.getElementById("header").innerHTML = "Password changed successfully";
+            alert("Password reset successfully and mail sent.");
         } else {
-            Storage.display_error(response);
-
+            Storage.display_error("Server was not able to reset the password.");
         }
     });
 }
