@@ -109,29 +109,41 @@ function loadPersons(){
             .path("person")
             .parameter("uid", person.uid())
             .build();
-        link.innerHTML = `<img id="${person.uid()}_photo" alt="${person.get("name")}'s profile photo"><h4>${person.get("name")}</h4>`;
+        link.innerHTML = `<img id="${person.uid()}_photo" alt="${person.get("name")}'s profile photo" src=${Storage.BROKEN_IMAGE}><h4>${person.get("name")}</h4>`;
         link.classList.add("person");
         personsGrid.appendChild(link);
 
         photo_queue.push(person.uid());
     }
     photo_queue = photo_queue.reverse();
-    Blip.getPhotos(photo_queue, (response) => {
+    Blip.getPhotos(photo_queue, (status, response) => {
+        console.debug(status);
         console.debug(response);
+        if (status == 200) {
+            let json = JSON.parse(response);
+            for (let uid in json) {
+                let element = document.getElementById(`${uid}_photo`);
+                if (element === null) continue;
+                else {
+                    element.src = `data:image/jpeg;base64,${json[uid]}`;
+                }
+                let index = photo_queue.indexOf(uid);
+                photo_queue.splice(index, 1);
+            }
+        }
+        getNextPhoto();
     });
-
+ 
     if (persons.length === 1) {
         document.getElementById("users_num").innerHTML = 'Export 1 user';
     } else {
         document.getElementById("users_num").innerHTML = `Export ${persons.length} users`;
     }
 
-
-    // getNextPhoto();
 }
 
 function getNextPhoto() {
-    if (photo_queue.length === 0){
+    if (photo_queue.length <= 0){
         return;
     }
 
