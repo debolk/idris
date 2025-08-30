@@ -117,8 +117,6 @@ function loadPersons(){
     }
     photo_queue = photo_queue.reverse();
     Blip.getPhotos(photo_queue, (status, response) => {
-        console.debug(status);
-        console.debug(response);
         if (status == 200) {
             let json = JSON.parse(response);
             for (let uid in json) {
