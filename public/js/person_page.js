@@ -29,6 +29,7 @@ function load(){
         person_object = Person.fromEmpty();
         populatePage(person_object);
         document.getElementById("delete").style.display = "none";
+        document.getElementById("passreset").style.display = "none";
         edit();
 
     } else if (location.search.startsWith("?uid")) {
