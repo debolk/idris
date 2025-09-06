@@ -1,7 +1,7 @@
-import {Person} from "/js/classes/person";
-import {Bolklogin} from "/js/classes/requests/bolklogin";
-import {Blip} from "/js/classes/requests/blip";
-import {Storage} from "/js/classes/helpers/storage";
+import {Person} from "/js/classes/person.js";
+import {Bolklogin} from "/js/classes/requests/bolklogin.js";
+import {Blip} from "/js/classes/requests/blip.js";
+import {Storage} from "/js/classes/helpers/storage.js";
 
 
 /**
@@ -35,6 +35,8 @@ function load(){
     } else if (location.search.startsWith("?uid")) {
         load_person();
     }
+
+    document.getElementById("main").href = Storage.APP_ADDRESS;
 
     document.getElementById("edit").onclick = edit;
     document.getElementById("save").onclick = save;

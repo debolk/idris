@@ -1,5 +1,5 @@
-import {Person} from "./person";
-import {Blip} from "./requests/blip";
+import {Person} from "/js/classes/person.js";
+import {Blip} from "/js/classes/requests/blip.js";
 
 export class PersonController{
 

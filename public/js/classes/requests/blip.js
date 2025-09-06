@@ -1,8 +1,8 @@
-import {API} from "./api.js";
-import {Request} from "./request.js";
-import {Storage} from "../helpers/storage";
-import {Bolklogin} from "./bolklogin";
-import {URLBuilder} from "../helpers/url_builder";
+import {API} from "/js/classes/requests/api.js";
+import {Request} from "/js/classes/requests/request.js";
+import {Storage} from "/js/classes/helpers/storage.js";
+import {Bolklogin} from "/js/classes/requests/bolklogin.js";
+import {URLBuilder} from "/js/classes/helpers/url_builder.js";
 
 export class Blip extends API {
 

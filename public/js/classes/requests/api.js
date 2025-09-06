@@ -1,4 +1,4 @@
-import {Storage} from "../helpers/storage";
+import {Storage} from "/js/classes/helpers/storage.js";
 
 export class API {
 

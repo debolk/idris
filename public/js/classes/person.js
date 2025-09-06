@@ -1,6 +1,6 @@
-import {Blip} from "./requests/blip";
-import {Storage} from "./helpers/storage";
-import {PersonController} from "./persons_controller";
+import {Blip} from "/js/classes/requests/blip.js";
+import {Storage} from "/js/classes/helpers/storage.js";
+import {PersonController} from "/js/classes/persons_controller.js";
 
 export class Person {
     /**

@@ -1,5 +1,4 @@
-import {Blip} from "../requests/blip";
-import {Storage} from "./storage";
+import {Storage} from "/js/classes/helpers/storage.js";
 
 export class URLBuilder {
 

@@ -1,9 +1,8 @@
-import {Blip} from "./classes/requests/blip";
-import {Bolklogin} from "./classes/requests/bolklogin";
-import {Person} from "./classes/person";
-import {URLBuilder} from "./classes/helpers/url_builder";
-import {Storage} from "./classes/helpers/storage";
-import {PersonController} from "./classes/persons_controller";
+import {Blip} from "/js/classes/requests/blip.js";
+import {Bolklogin} from "/js/classes/requests/bolklogin.js";
+import {URLBuilder} from "/js/classes/helpers/url_builder.js";
+import {Storage} from "/js/classes/helpers/storage.js";
+import {PersonController} from "/js/classes/persons_controller.js";
 
 let photo_queue = [];
 
@@ -14,14 +13,13 @@ let personcontroller;
 let filter_timeout;
 
 function preload() {
+    console.debug(Storage.APP_REDIRECT_ADDRESS);
     if ( !Bolklogin.checkLoggedIn() ) return;
 
     Bolklogin.checkAuthorization((status, response) => {
         if (status === 200) {
             console.debug("Login is okay, loading page...");
             load();
-        } else {
-            location.href = "/password";
         }
     });
 };
@@ -42,6 +40,8 @@ function load() {
     else{
         filter();
     }
+
+    document.getElementById("main").href = Storage.APP_ADDRESS;
 
     document.getElementById('filter_value').onkeydown = filter_timer;
     set_membership_filter();

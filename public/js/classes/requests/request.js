@@ -15,6 +15,7 @@ export class Request {
         request.onreadystatechange = () => {
             if (request.readyState === 4) {
                 console.debug('Received response', request.status, request.statusText);
+                console.debug(request.responseText);
                 if (textResponse) {
                     callback(request.status, request.responseText);
                 } else {
