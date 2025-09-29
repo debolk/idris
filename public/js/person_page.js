@@ -61,7 +61,6 @@ function load_person() {
         person_object = Person.fromArray(response);
         populatePage(person_object);
     });
-
 }
 
 function populatePage(person) {
@@ -74,6 +73,18 @@ function populatePage(person) {
             element.href = "mailto:" + parseAttribute(person.get(attribute));
         }
     }
+    
+    let element = document.getElementById("uid");
+    element.innerHTML = person.uid();
+
+    person.getPhoto((photo) => {
+        let element = document.getElementById("profile_picture");
+
+        if (element === null) return;
+        else {
+            element.src = photo;
+        }
+    });
 }
 
 function parseAttribute(value) {

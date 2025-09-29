@@ -35,6 +35,10 @@ button#delete {
     font-weight: bold;
 }
 
+button#passreset {
+    max-width: 80%;
+}
+
 thead{
     text-align: center;
     background-color: #690000;
@@ -104,4 +108,12 @@ tr .contact input[type=text], tr .contact input[type=tel] {
 a {
     text-decoration: none;
     color: inherit;
+}
+
+#profile_picture {
+    top: 0;
+    position: absolute;
+    left: 100%;
+    border: 2px solid black;
+    margin-left: 1rem;
 }

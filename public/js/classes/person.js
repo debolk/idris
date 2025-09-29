@@ -79,7 +79,9 @@ export class Person {
     getPhoto(callback) {
         if (this.#photo !== null) {
             callback(this.#photo);
+            return;
         }
+        
         Blip.getPersonPhoto(this.uid(), (response) => {
             this.#photo = response;
             callback(response);

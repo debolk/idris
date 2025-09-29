@@ -43,6 +43,7 @@ export class Blip extends API {
                 let reader = new FileReader();
                 reader.readAsDataURL(response);
                 reader.onloadend = function() {
+                    console.debug(reader.result);
                     callback(reader.result);
                 }
             } else {
