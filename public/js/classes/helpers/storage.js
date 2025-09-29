@@ -16,6 +16,7 @@ export class Storage {
     });
 
     static APP_REDIRECT_ADDRESS = Config.APP_ADDRESS + "/?login";
+    static APP_LOGOUT_ADDRESS = Config.APP_ADDRESS + "/?logout";
     static APP_ADDRESS = Config.APP_ADDRESS;
     static LOGIN_ADDRESS = Config.LOGIN_ADDRESS;
     static BLIP_ADDRESS = Config.BLIP_ADDRESS;

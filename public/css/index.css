@@ -44,3 +44,13 @@
     margin: 0;
     padding: 0;
 }
+
+.selected img {
+    border: 5px solid blue !important;
+    margin: -4px !important;
+    opacity: 0.5;
+}
+
+.selected {
+    filter: brightness(150%);
+}

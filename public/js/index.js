@@ -16,6 +16,8 @@ function preload() {
     console.debug(Storage.APP_REDIRECT_ADDRESS);
     if ( !Bolklogin.checkLoggedIn() ) return;
 
+    else if ( location.href.startsWith(Storage.APP_LOGOUT_ADDRESS) ) Bolklogin.logout();
+
     Bolklogin.checkAuthorization((status, response) => {
         if (status === 200) {
             console.debug("Login is okay, loading page...");

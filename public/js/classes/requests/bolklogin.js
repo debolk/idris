@@ -143,6 +143,13 @@ export class Bolklogin extends API {
         return logged_in;
     }
 
+    static logout(){
+        if (this.checkLoginState()) {
+            Storage.clearStorage();
+            location.replace(Storage.APP_ADDRESS);
+        }
+    }
+
     static checkAuthorization(callback) {
         new Request(
             Request.RequestType.POST, new URLBuilder(Storage.LOGIN_ADDRESS)
