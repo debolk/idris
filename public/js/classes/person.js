@@ -67,6 +67,10 @@ export class Person {
         for (let entry of Object.entries(json)){
             person.#attributes.set(entry[0], entry[1]);
         }
+        
+        if (Storage.hasVariable(`${person.uid()}-photo`)) {
+            person.setPhoto(Storage.getVariable(`${person.uid()}-photo`));
+        }
 
         //let print = '';
         //person.#attributes.forEach((v, k, m) => {
@@ -76,8 +80,8 @@ export class Person {
         return person;
     }
 
-    getPhoto(callback) {
-        if (this.#photo !== null) {
+    fetchPhoto(callback) {
+        if (this.hasPhoto()) {
             callback(this.#photo);
             return;
         }
@@ -86,6 +90,30 @@ export class Person {
             this.#photo = response;
             callback(response);
         });
+    }
+
+    getPhoto() {
+        if (this.hasPhoto()) {
+            return this.#photo;
+            
+        } else if (Storage.hasVariable(`${this.uid()}-photo`)) {
+            this.setPhoto(Storage.getVariable(`${this.uid()}-photo`));
+            return this.#photo;
+        }
+    }
+
+    setPhoto(photo) {
+        if (this.hasPhoto()) {
+            return;
+        } else if (!Storage.hasVariable(`${this.uid()}-photo`)) {
+            Storage.setVariable(`${this.uid()}-photo`, photo);
+        }
+
+        this.#photo = photo;
+    }
+
+    hasPhoto() {
+        return this.#photo !== null;
     }
 
     get(var_name) {

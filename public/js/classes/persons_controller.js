@@ -125,7 +125,6 @@ export class PersonController{
 
         let filterFunc;
 
-
         if (filter === "*") {
             this.#displayed_persons = this.#persons;
             return;

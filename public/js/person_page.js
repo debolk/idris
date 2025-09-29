@@ -77,7 +77,7 @@ function populatePage(person) {
     let element = document.getElementById("uid");
     element.innerHTML = person.uid();
 
-    person.getPhoto((photo) => {
+    person.fetchPhoto((photo) => {
         let element = document.getElementById("profile_picture");
 
         if (element === null) return;
