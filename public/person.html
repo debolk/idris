@@ -30,14 +30,15 @@
 <div class="content" id="content">
     <table id="person">
         <thead>
-            <th colspan="2"><h1 id="firstname"></h1> <h1 id="surname"></h1></th>
+            <tr class="static">
+                <th colspan="2"><h1 id="firstname"></h1> <h1 id="surname"></h1></th>
+            </tr>
         </thead>
         <tbody>
-            <tr>
+            <tr class="static">
                 <td colspan="2" class="contact">
                     <div title="Phone number"> <i class="bi bi-phone" ></i><a id="phone"></a> </div>
                     <div title="Email address"> <i class="bi bi-envelope-heart"></i><a id="email"></a> </div>
-                    <div title="Emergency phone number"> <i class="bi bi-hospital"></i><a id="phone_emergency"></a> </div>
                 </td>
             </tr>
             <tr>
@@ -45,13 +46,18 @@
                 <td id="uid"></td>
             </tr>
             <tr>
-                <th>Membership</th>
-                <td id="membership"></td>
-            </tr>
-            <tr>
                 <th>Nickname</th>
                 <td id="nickname"></td>
             </tr>
+            <tr>
+                <th>Membership</th>
+                <td id="membership"></td>
+            </tr>
+
+            <tr class="separator static">
+                <td colspan="2"></td>
+            </tr>
+
             <tr>
                 <th>Initials</th>
                 <td id="initials"></td>
@@ -69,13 +75,21 @@
                 <td id="address"></td>
             </tr>
             <tr>
+                <th>Emergency phone number(s)</th>
+                <td id="phone_emergency"></td>
+            </tr>
+            <tr>
                 <th>Institution</th>
                 <td id="institution"></td>
             </tr>
-            <tr>
                 <th>Programme</th>
                 <td id="programme"></td>
             </tr>
+            
+            <tr class="separator static">
+                <td colspan="2"></td>
+            </tr>
+            
             <tr>
                 <th>Inauguration date</th>
                 <td id="inauguration_date"></td>

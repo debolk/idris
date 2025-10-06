@@ -67,11 +67,23 @@ function populatePage(person) {
     for (let attribute of Person.available_attributes.keys()) {
         let element = document.getElementById(attribute);
         element.innerHTML = parseAttribute(person.get(attribute));
-        if (attribute.includes("phone")) {
-            element.href = "tel:" + parseAttribute(person.get(attribute));
+        if (attribute === "phone") {
+            element.href = "tel:" + element.innerHTML;
+        } else if (attribute === "phone_emergency") {
+            if (element.innerHTML.includes("<br>")) {
+                let inner = [];
+                for (let number of element.innerHTML.split("<br>")) {
+                    inner.push(`<a href="tel:${number}">${number}</a>`);
+                }
+                element.innerHTML = inner.join("<br>");
+
+            } else {
+                element.href = "tel:" + element.innerHTML;
+            }
+
         } else if (attribute === "email") {
-            element.href = "mailto:" + parseAttribute(person.get(attribute));
-        }
+            element.href = "mailto:" + element.innerHTML;
+        } 
     }
     
     let element = document.getElementById("uid");

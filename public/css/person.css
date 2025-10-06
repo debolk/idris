@@ -6,7 +6,8 @@ table{
     text-align: left;
     vertical-align: top;
     color: black;
-    border: 2px solid black;
+    border-top: 2px solid black;
+    border-bottom: 2px solid black;
     border-radius: 1rem;
 }
 
@@ -74,12 +75,31 @@ tr {
     color: white;
     border-bottom-color: #B5B8B1;
     font-size: 1.5rem;
+    border-left: 2px solid black;
+    border-right: 2px solid black;
 }
 
 tr:nth-child(even) {
     background-color: #B5B8B1;
     color: black;
     border-bottom-color: #690000;
+}
+
+tr:hover:not(.static) {
+    background-color: #753c3c;
+}
+
+tr:nth-child(even):hover:not(.static){
+    background-color: #7b7b7b;
+}
+
+tr.separator {
+    background-color: transparent;
+    color: transparent;
+    border-top: 2px solid black;
+    border-bottom: 2px solid black;
+    border-left-color: transparent;
+    border-right-color: transparent;
 }
 
 td i {
