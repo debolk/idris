@@ -67,23 +67,20 @@ function populatePage(person) {
     for (let attribute of Person.available_attributes.keys()) {
         let element = document.getElementById(attribute);
         element.innerHTML = parseAttribute(person.get(attribute));
+
         if (attribute === "phone") {
             element.href = "tel:" + element.innerHTML;
+
         } else if (attribute === "phone_emergency") {
-            if (element.innerHTML.includes("<br>")) {
-                let inner = [];
-                for (let number of element.innerHTML.split("<br>")) {
-                    inner.push(`<a href="tel:${number}">${number}</a>`);
-                }
-                element.innerHTML = inner.join("<br>");
-
-            } else {
-                element.href = "tel:" + element.innerHTML;
+            let inner = [];
+            for (let number of element.innerHTML.split("<br>")) {
+                inner.push(`<a href="tel:${number}">${number}</a>`);
             }
-
+            element.innerHTML = inner.join("<br>");
+            
         } else if (attribute === "email") {
             element.href = "mailto:" + element.innerHTML;
-        } 
+        }
     }
     
     let element = document.getElementById("uid");
@@ -144,6 +141,18 @@ function edit() {
         } else if (type === "multiline_string") {
             e = document.createElement("textarea");
             e.innerHTML = old.innerHTML.replaceAll("<br>", "\n");
+            console.debug(e.innerHTML);
+
+            if (e.innerHTML.includes("href")) {
+                let inner_new = [];
+                for (let inner of old.children) {
+                    if (inner.innerHTML != "") {
+                        inner_new.push(inner.innerHTML);
+                    }
+                }
+                console.debug(inner_new);
+                e.innerHTML = inner_new.join('\n');
+            }
 
         } else if (type === "phone_number") {
             e.type = "tel";
@@ -197,27 +206,35 @@ function save() {
         }
 
 
-        if (["firstname", "surname", "nickname"].includes(attribute) && value !== null && value !== undefined) {
+        if (["firstname", "surname", "nickname"].includes(attribute) && value !== null && value !== undefined && value.split(" ").length === 1) {
             value = value.replace(/^\w/, c => c.toUpperCase()); //capitalize strings
 
         } else if (type === "multiline_string") {
 
-            if (attribute !== "address" && person_attr !== undefined &&
-                person_attr !== value && value !== undefined && value !== null) {
+            if (attribute !== "address" && attribute !== "phone_emergency") {
 
                 if ((typeof person_attr === "string" && person_attr !== value) ||
                     (typeof person_attr !== "string" && person_attr.join('\n') !== value)) {
                     person_object.set(attribute, value.split('\n'));
                 }
                 continue;
-            }
 
+            } else if (attribute === "phone_emergency") {
+                
+                if ((typeof person_attr === "string" && person_attr !== value) || 
+                    (typeof person_attr !== "string" && person_attr.join('\n') !== value)) {
+                        value = value.replace("\n\n", "\n");
+                        person_object.set(attribute, value.split('\n'));
+                }
+                continue;
+            }
         } else if (type === "options") {
             value = old.options.item(old.options.selectedIndex).value;
 
         } else if (type === "bool") {
             value = old.checked;
-        }
+
+        } 
 
         if (person_attr !== value || person_object.uid() === undefined) { //always force save new user attributes
             console.debug(`Setting ${attribute} to ${value}`);

@@ -15,7 +15,7 @@ export class Person {
         ["email", "string"],
         ["pronouns", "string"],
         ["phone", "phone_number"],
-        ["phone_emergency", "phone_number"],
+        ["phone_emergency", "multiline_string"],
         ["address", "multiline_string"],
         ["dateofbirth", "date"],
         ["membership", "options"],
@@ -124,6 +124,7 @@ export class Person {
     set(var_name, value) {
         if ( !Person.available_attributes.has(var_name) ) return false;
 
+        console.debug(var_name, value);
         this.#attributes.set(var_name, value);
         this.#changed_attributes.set(var_name, value);
 
