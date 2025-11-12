@@ -122,3 +122,21 @@ body{
     color: black;
     border-radius: 5px;
 }
+
+.error {
+    color: darkred;
+    background-color: lightgrey;
+    border-radius: 8px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+}
+
+.info {
+    color: green;
+    background-color: lightgrey;
+    border-radius: 8px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+}

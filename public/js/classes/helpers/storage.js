@@ -31,28 +31,38 @@ export class Storage {
      * @param {string} message
      */
     static display_error(message) {
+        this.display_message(message, "error");
+    }
+
+    static display_message(message, level = "info") {
         let content = document.getElementById("content");
         if (content !== null){
-            let error = document.getElementById('error_message');
-            if (error === null) {
-                error = document.createElement('H1');
-                error.id = "error_message";
-                error.style.color = 'darkred';
-                error.style.backgroundColor = 'lightgrey';
-                error.style.borderRadius = "8px";
-                error.style.paddingLeft = "5px";
-                error.style.paddingRight = "5px";
-                error.style.paddingTop = "5px";
+            let message_element = document.getElementById('message');
+            if (message_element === null) {
+                message_element = document.createElement('H1');
+                message_element.id = "message";
 
                 if (content.children.length > 0) {
-                    content.firstChild.before(error);
+                    content.firstChild.before(message_element);
                 } else {
-                    content.appendChild(error);
+                    content.appendChild(message_element);
                 }
-                error.after(document.createElement("br"));
+                message_element.after(document.createElement("br"));
             }
+            
+            message_element.className = level;
 
-            error.innerHTML = message.replaceAll(', ', ".<br>Data invalid: ");
+            message_element.innerHTML = message.replaceAll(', ', ".<br>Data invalid: ");
+        }
+    }
+
+    static remove_message() {
+        let content = document.getElementById("content");
+        if (content !== null) {
+            let msg = document.getElementById('message');
+            if (msg !== null) {
+                msg.remove();
+            }
         }
     }
 
@@ -61,7 +71,7 @@ export class Storage {
     }
 
     static getVariable(name) {
-        return sessionStorage.getItem(name);
+        return this.hasVariable(name) ? sessionStorage.getItem(name) : null;
     }
 
     static setVariable(name, value) {
