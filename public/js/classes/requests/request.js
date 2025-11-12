@@ -17,7 +17,7 @@ export class Request {
                 console.debug('Received response', request.status, request.statusText);
                 
                 if (textResponse) {
-                    console.debug(request.responseText);
+                    // console.debug(request.responseText);
                     callback(request.status, request.responseText);
                 } else {
                     callback(request.status, request.response);
