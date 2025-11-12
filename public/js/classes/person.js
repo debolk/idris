@@ -124,14 +124,14 @@ export class Person {
     set(var_name, value) {
         if ( !Person.available_attributes.has(var_name) ) return false;
 
-        console.debug(var_name, value);
+        console.debug(`Setting ${var_name} to ${value}`);
         this.#attributes.set(var_name, value);
         this.#changed_attributes.set(var_name, value);
 
         return true;
     }
 
-    save() {
+    save(callback = null) {
         if (this.#changed_attributes.size > 0) {
             let to_save = {};
             let print = 'Attribute(s):\n';
@@ -146,8 +146,12 @@ export class Person {
                     if (s !== 200) {
                         Storage.display_error(r);
                     } else {
-                        alert(`Successfully saved changes in ${this.get("name").endsWith('s') ? this.get("name") + "'" : this.get("name") + "'s"} account`);
-                        location.reload();
+                        if (callback !== null) {
+                            callback();
+                        } else {
+                            alert(`Successfully saved changes for ${this.get("name")}`);
+                            location.reload();
+                        }
                     }
                 });
             } else {
@@ -155,8 +159,7 @@ export class Person {
                     if (s !== 200) {
                         Storage.display_error(r)
                     } else {
-
-                        alert(`Successfully created ${to_save["firstname"]} ${to_save["surname"].endsWith('s') ? to_save["surname"] + "'" : to_save["surname"] + "'s"} account`);
+                        alert(`Successfully created ${to_save["firstname"]} ${to_save["surname"]}`);
                         location.replace(Storage.APP_ADDRESS);
                     }
                 });

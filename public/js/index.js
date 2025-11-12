@@ -11,6 +11,8 @@ let photo_queue = [];
  */
 let personcontroller;
 let filter_timeout;
+let selected_uids = [];
+let bulk_editing = false;
 
 function preload() {
     console.debug(Storage.APP_REDIRECT_ADDRESS);
@@ -54,6 +56,11 @@ function load() {
     };
 
     document.getElementById('export').onclick = export_persons;
+
+    document.getElementById('bulk_edit').onclick = startBulkEdit;
+
+    document.getElementById('cancel_bulk_edit').onclick = stopBulkEdit;
+    
 }
 
 function set_membership_filter() {
@@ -98,6 +105,33 @@ function filter(){
     loadPersons();
 }
 
+function onclickPerson(event) {
+    let person = document.getElementById(event.target.id.replace("_photo", ""));
+    if (bulk_editing === true) {
+        if (person.classList.contains("selected")) {
+            person.classList.remove("selected");
+            selected_uids = selected_uids.join(" ").replaceAll(person.id, "").replaceAll("  ", " ").trim().split(" ");
+            if (selected_uids.length === 1 && selected_uids[0] === "") {
+                selected_uids = [];
+            }
+        } else {
+            person.classList.add("selected");
+            selected_uids.push(person.id);
+        }
+        let innerHTML = `Edit ${selected_uids.length} users`;
+        if (selected_uids.length === 0) {
+            innerHTML = "Edit 0 users";
+        }
+        document.getElementById("confirm_bulk_edit_p").innerHTML = innerHTML;
+
+        document.getElementById("confirm_bulk_edit").href = new URLBuilder("")
+            .path("person")
+            .parameter("bulk_edit", selected_uids.join(","))
+            .build();
+        return false;
+    }
+}
+
 function loadPersons(){
     let personsGrid = document.getElementById("personsgrid");
     personsGrid.innerHTML = "";
@@ -107,13 +141,15 @@ function loadPersons(){
     for (let person of persons) {
 
         let link = document.createElement("a");
-        link.href = new URLBuilder(Storage.APP_ADDRESS)
+        link.href = new URLBuilder("")
             .path("person")
             .parameter("uid", person.uid())
             .build();
 
+        link.id = person.uid();
+        link.onclick = onclickPerson;
+        
         let src_photo = Storage.BROKEN_IMAGE;
-        console.debug(`${person.uid()} - ${person.hasPhoto()}`);
         if (person.hasPhoto()) src_photo = person.getPhoto();
         else photo_queue.push(person.uid());
         
@@ -169,6 +205,33 @@ function getNextPhoto() {
         document.getElementById(`${uid}_photo`).src = response;
         if (photo_queue.length > 0) getNextPhoto();
     })
+}
+
+function startBulkEdit() {
+    bulk_editing = true;
+
+    for (let element of ["new_member", "bulk_edit", "filter_input", "filter_attribute", "export"]) {
+        document.getElementById(element).style.display = "none";
+    }
+
+    document.getElementById("confirm_bulk_edit").style.display = "";
+    document.getElementById("cancel_bulk_edit").style.display = "";
+}
+
+function stopBulkEdit() {
+    bulk_editing = false;
+
+    for (let element of ["new_member", "bulk_edit", "filter_input", "filter_attribute", "export"]) {
+        document.getElementById(element).style.display = "";
+    }
+
+    document.getElementById("confirm_bulk_edit").style.display = "none";
+    document.getElementById("cancel_bulk_edit").style.display = "none";
+
+    for (let element of selected_uids) {
+        document.getElementById(element).classList.remove("selected");
+    }
+    selected_uids = [];
 }
 
 function export_persons() {

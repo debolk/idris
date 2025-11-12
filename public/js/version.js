@@ -1,4 +1,4 @@
-let version = "v1.2.0";
+let version = "v1.3.0";
 
 let version_element = document.getElementById("idris-version");
 

@@ -80,7 +80,7 @@ export class Blip extends API {
             if (status === 200) {
                 callback(response);
             } else {
-                Storage.display_error("Could not find the person!");
+                Storage.display_error(`Could not find ${uid}!`);
             }
         });
     }
