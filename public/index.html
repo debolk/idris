@@ -19,12 +19,17 @@
 
 <div id="topnav">
 
-  <a id="main" href="https://idris.i.bolkhuis.nl/">
+  <a id="main" href="/">
     <img src="../images/favicon.svg" alt="I.D.R.I.S. Logo">
     <h1>I.D.R.I.S.</h1>
   </a>
+  <a id="logout" href="?logout"><p>LOG OUT</p></a>
 
-  <a href="person?new"><p>New member</p></a>
+  <a href="#" id="confirm_bulk_edit" style="display: none;"><p id="confirm_bulk_edit_p">Edit 0 users</p></a>
+  <a href="#" id="cancel_bulk_edit" style="display: none;"><p>Cancel bulk edit</p></a>
+
+  <a href="person?new" id="new_member"><p>New member</p></a>
+  <a href="#" id="bulk_edit"><p>Bulk edit</p></a>
   <div id="filter_input"><input type="text" id="filter_value"></div>
   <div>
     <select id="filter_attribute">

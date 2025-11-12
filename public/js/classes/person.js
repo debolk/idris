@@ -1,6 +1,6 @@
-import {Blip} from "./requests/blip";
-import {Storage} from "./helpers/storage";
-import {PersonController} from "./persons_controller";
+import {Blip} from "/js/classes/requests/blip.js";
+import {Storage} from "/js/classes/helpers/storage.js";
+import {PersonController} from "/js/classes/persons_controller.js";
 
 export class Person {
     /**
@@ -15,7 +15,7 @@ export class Person {
         ["email", "string"],
         ["pronouns", "string"],
         ["phone", "phone_number"],
-        ["phone_emergency", "phone_number"],
+        ["phone_emergency", "multiline_string"],
         ["address", "multiline_string"],
         ["dateofbirth", "date"],
         ["membership", "options"],
@@ -67,6 +67,10 @@ export class Person {
         for (let entry of Object.entries(json)){
             person.#attributes.set(entry[0], entry[1]);
         }
+        
+        if (Storage.hasVariable(`${person.uid()}-photo`)) {
+            person.setPhoto(Storage.getVariable(`${person.uid()}-photo`));
+        }
 
         //let print = '';
         //person.#attributes.forEach((v, k, m) => {
@@ -76,14 +80,40 @@ export class Person {
         return person;
     }
 
-    getPhoto(callback) {
-        if (this.#photo !== null) {
+    fetchPhoto(callback) {
+        if (this.hasPhoto()) {
             callback(this.#photo);
+            return;
         }
+        
         Blip.getPersonPhoto(this.uid(), (response) => {
             this.#photo = response;
             callback(response);
         });
+    }
+
+    getPhoto() {
+        if (this.hasPhoto()) {
+            return this.#photo;
+            
+        } else if (Storage.hasVariable(`${this.uid()}-photo`)) {
+            this.setPhoto(Storage.getVariable(`${this.uid()}-photo`));
+            return this.#photo;
+        }
+    }
+
+    setPhoto(photo) {
+        if (this.hasPhoto()) {
+            return;
+        } else if (!Storage.hasVariable(`${this.uid()}-photo`)) {
+            Storage.setVariable(`${this.uid()}-photo`, photo);
+        }
+
+        this.#photo = photo;
+    }
+
+    hasPhoto() {
+        return this.#photo !== null;
     }
 
     get(var_name) {
@@ -94,13 +124,14 @@ export class Person {
     set(var_name, value) {
         if ( !Person.available_attributes.has(var_name) ) return false;
 
+        console.debug(`Setting ${var_name} to ${value}`);
         this.#attributes.set(var_name, value);
         this.#changed_attributes.set(var_name, value);
 
         return true;
     }
 
-    save() {
+    save(callback = null) {
         if (this.#changed_attributes.size > 0) {
             let to_save = {};
             let print = 'Attribute(s):\n';
@@ -115,8 +146,12 @@ export class Person {
                     if (s !== 200) {
                         Storage.display_error(r);
                     } else {
-                        alert(`Successfully saved changes in ${this.get("name").endsWith('s') ? this.get("name") + "'" : this.get("name") + "'s"} account`);
-                        location.reload();
+                        if (callback !== null) {
+                            callback();
+                        } else {
+                            alert(`Successfully saved changes for ${this.get("name")}`);
+                            location.reload();
+                        }
                     }
                 });
             } else {
@@ -124,8 +159,7 @@ export class Person {
                     if (s !== 200) {
                         Storage.display_error(r)
                     } else {
-
-                        alert(`Successfully created ${to_save["firstname"]} ${to_save["surname"].endsWith('s') ? to_save["surname"] + "'" : to_save["surname"] + "'s"} account`);
+                        alert(`Successfully created ${to_save["firstname"]} ${to_save["surname"]}`);
                         location.replace(Storage.APP_ADDRESS);
                     }
                 });

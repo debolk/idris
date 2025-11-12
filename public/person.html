@@ -19,34 +19,45 @@
 
 <div id="topnav">
 
-    <a id="main" href="https://idris.i.bolkhuis.nl/">
+    <a id="main">
         <img src="../images/favicon.svg" alt="I.D.R.I.S. Logo">
         <h1>I.D.R.I.S.</h1>
     </a>
+    <a id="logout" href="/?logout"><p>LOG OUT</p></a>
 
 </div>
 
 <div class="content" id="content">
     <table id="person">
         <thead>
-            <th colspan="2"><h1 id="firstname"></h1> <h1 id="surname"></h1></th>
+            <tr class="static">
+                <th colspan="2" id="name_row"><h1 id="firstname"></h1><h1>&nbsp;</h1><h1 id="surname"></h1></th>
+            </tr>
         </thead>
         <tbody>
-            <tr>
+            <tr class="static">
                 <td colspan="2" class="contact">
                     <div title="Phone number"> <i class="bi bi-phone" ></i><a id="phone"></a> </div>
                     <div title="Email address"> <i class="bi bi-envelope-heart"></i><a id="email"></a> </div>
-                    <div title="Emergency phone number"> <i class="bi bi-hospital"></i><a id="phone_emergency"></a> </div>
                 </td>
             </tr>
-            <tr>
-                <th>Membership</th>
-                <td id="membership"></td>
+            <tr id="uid_row">
+                <th>Username</th>
+                <td id="uid"></td>
             </tr>
             <tr>
                 <th>Nickname</th>
                 <td id="nickname"></td>
             </tr>
+            <tr>
+                <th>Membership</th>
+                <td id="membership"></td>
+            </tr>
+
+            <tr class="separator static">
+                <td colspan="2"></td>
+            </tr>
+
             <tr>
                 <th>Initials</th>
                 <td id="initials"></td>
@@ -64,13 +75,21 @@
                 <td id="address"></td>
             </tr>
             <tr>
+                <th>Emergency phone number(s)</th>
+                <td id="phone_emergency"></td>
+            </tr>
+            <tr>
                 <th>Institution</th>
                 <td id="institution"></td>
             </tr>
-            <tr>
                 <th>Programme</th>
                 <td id="programme"></td>
             </tr>
+            
+            <tr class="separator static">
+                <td colspan="2"></td>
+            </tr>
+            
             <tr>
                 <th>Inauguration date</th>
                 <td id="inauguration_date"></td>
@@ -96,7 +115,9 @@
     <button id="edit"><i class="bi bi-pencil"> Edit</i></button>
     <button id="save"><i class="bi bi-floppy"> Save</i></button>
     <button id="delete"><i class="bi bi-trash3-fill"> Delete</i></button>
+    <br>
     <button id="passreset"><i class="bi bi-shield-exclamation"> Reset password</i></button>
+    <br><img id="profile_picture" alt="profile picture">
 </div>
 
 <p id="idris-version"></p>

@@ -1,7 +1,7 @@
-import {API} from "./api";
-import {URLBuilder} from "../helpers/url_builder";
-import {Storage} from "../helpers/storage";
-import {Request} from "./request";
+import {API} from "/js/classes/requests/api.js";
+import {URLBuilder} from "/js/classes/helpers/url_builder.js";
+import {Storage} from "/js/classes/helpers/storage.js";
+import {Request} from "/js/classes/requests/request.js";
 
 export class Bolklogin extends API {
 
@@ -27,7 +27,6 @@ export class Bolklogin extends API {
                 console.debug("Validating token...");
 
                 this.validateToken(access, refresh, expires);
-
             }
         }, json);
     }
@@ -74,7 +73,7 @@ export class Bolklogin extends API {
     }
 
     static validateToken(access_token, refresh_token, expires) {
-
+        console.debug(access_token);
         new Request(Request.RequestType.GET, new URLBuilder(Storage.LOGIN_ADDRESS)
             .path("resource")
             .parameter(Storage.PARAMETERS.ACCESS_TOKEN, access_token)
@@ -142,6 +141,13 @@ export class Bolklogin extends API {
             setTimeout(this.refreshToken, timeout);
         }
         return logged_in;
+    }
+
+    static logout(){
+        if (this.checkLoginState()) {
+            Storage.clearStorage();
+            location.replace(Storage.APP_ADDRESS);
+        }
     }
 
     static checkAuthorization(callback) {

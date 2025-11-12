@@ -1,0 +1,9 @@
+export class Config {
+
+    static APP_ADDRESS = "https://idris.i.bolkhuis.nl";
+    static LOGIN_ADDRESS = "https://auth.i.bolkhuis.nl";
+    static BLIP_ADDRESS = "https://blip.i.bolkhuis.nl";
+
+    static CLIENT_SECRET = "client_secret"
+    static CLIENT_ID = "client_id";
+}
