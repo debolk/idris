@@ -1,45 +1,42 @@
-import {Storage} from "/js/classes/helpers/storage.js";
+import { PARAMETERS } from "./share";
 
 export class URLBuilder {
 
-    constructor(url) {
-        if (!url.toString().endsWith("/")) url += "/";
+    url: string;
+    params: string[] = [];
+    paths: string[]  = [];
+
+    constructor(url: string) {
+        if (!url.endsWith("/")) url += "/";
 
         this.url = url;
-        this.params = [];
-        this.paths = [];
     }
 
-    access_token(token) {
-        return this.parameter(Storage.PARAMETERS.ACCESS_TOKEN, token);
+    access_token(token: string) {
+        return this.parameter(PARAMETERS.ACCESS_TOKEN, token);
     }
 
-    parameter(param, value) {
-        this.params.push(`${param.toString()}=${value.toString()}`);
+    parameter(param: string, value: any) {
+        this.params.push(`${param}=${value.toString()}`);
         return this;
     }
 
-    path(path) {
-        if (path === undefined || path === null) {
-            console.error(`${path} is null or undefined!`);
-            return this;
-        }
-
-        if (path.toString().startsWith("/")) path = path.toString().substring(1);
-        if (path.toString().endsWith("/")) path = path.toString().substring(0, path.length - 1);
+    path(path: string) {
+        if (path.startsWith("/")) path = path.substring(1);
+        if (path.endsWith("/")) path = path.substring(0, path.length - 1);
 
         this.paths.push(path);
         return this;
     }
 
-    buildPaths() {
+    private build_paths() {
         this.paths.forEach((p, i) => {
             if (!this.url.endsWith("/")) this.url += "/" + p;
             else this.url += p;
         });
     }
 
-    buildParameters() {
+    private build_params() {
         if (this.params.length > 0) this.url += "?";
         this.params.forEach((v, i) => {
             if (i !== this.params.length - 1) {
@@ -50,9 +47,9 @@ export class URLBuilder {
         })
     }
 
-    build() {
-        this.buildPaths();
-        this.buildParameters();
+    build(): string {
+        this.build_paths();
+        this.build_params();
         return this.url;
     }
 

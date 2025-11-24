@@ -1,36 +1,46 @@
-import {Person} from "/js/classes/person.js";
-import {Bolklogin} from "/js/classes/requests/bolklogin.js";
-import {Blip} from "/js/classes/requests/blip.js";
-import {Storage} from "/js/classes/helpers/storage.js";
+import { Person } from "./classes/person";
+import { Bolklogin } from "./classes/api/bolklogin";
+import { Blip } from "./classes/api/blip";
+import { ADDRESSES, Shared } from "./classes/share";
+import { Callback } from "./classes/api/request";
 
+let persons_array: Person[] = [];
+let timeout: number;
 
-/**
- * @type {Person}
- */
-let person_object = [];
-let timeout;
-
-const placeholders = {"firstname": "First name", "surname": "Surname", "phone": "Phone number", "email": "Email address", "phone_emergency": "Emergency contact"}
+const placeholders = new Map([
+    ["firstname", "First name"],
+    ["surname", "Surname"],
+    ["phone", "Phone number"],
+    ["email", "Email address"],
+    ["phone_emergency", "Emergency contact"]]);
 
 function preload() {
-    if ( !Bolklogin.checkLoggedIn() ) return;
+    if ( !Bolklogin.is_logged_in() ) return;
 
-    Bolklogin.checkAuthorization((status, response) => {
+    Bolklogin.check_authorization((status, response) => {
         if (status === 200) {
             console.debug("Login is okay, loading page...");
             load();
         } else {
-            Storage.display_error("You are not authorized to access this page.");
+            Shared.display_error("You are not authorized to access this page.");
         }
     });
 }
 
+function bulk_editing(): boolean {
+    return persons_array.length > 1;
+}
+
 function load(){
     if (location.search === "?new") {
-        person_object = Person.fromEmpty();
-        populatePage(person_object);
-        document.getElementById("delete").style.display = "none";
-        document.getElementById("passreset").style.display = "none";
+        persons_array = [Person.from_empty()];
+        
+        populate_page(persons_array[0]); 
+        for (const element of ["delete", "passreset"]) {
+            Shared.change_element(element, HTMLElement, (e) => {
+                e.style.display = "none";
+            })
+        }
         edit();
 
     } else if (location.search.startsWith("?uid")) {
@@ -39,97 +49,136 @@ function load(){
         load_person_bulk();
     }
 
-    document.getElementById("main").href = Storage.APP_ADDRESS;
+    Shared.change_element("main", HTMLAnchorElement, (e) => {
+        e.href = ADDRESSES.APP;
+    });
 
-    document.getElementById("edit").onclick = edit;
-    document.getElementById("save").onclick = (e) => {
-        if (Array.isArray(person_object)) {
-            bulk_save(person_object);
-        } else {
-            save(person_object)
-        }
-    };
-    document.getElementById("delete").onclick = delete_person;
-    document.getElementById("passreset").onclick = reset_password;
+    Shared.change_element("edit", HTMLButtonElement, (e) => {
+        e.onclick = edit;
+    });
+
+    Shared.change_element("cancel", HTMLButtonElement, (e) => {
+        e.onclick = () => {
+            location.reload();
+        };
+    });
+
+    Shared.change_element("save", HTMLButtonElement, (e) => {
+        e.onclick = (e) => {
+            if (bulk_editing()) bulk_save(persons_array);
+            else save(persons_array[0]);
+        };
+    });
+
+    Shared.change_element("delete", HTMLButtonElement, (e) => {
+        e.onclick = delete_person;
+    });
+    
+    Shared.change_element("passreset", HTMLButtonElement, (e) => {
+        e.onclick = reset_password;
+    });
 }
 
 function load_person() {
     console.debug("Populating person page...");
 
     let params = new URLSearchParams(location.search);
-    let person = params.get("uid");
+    let uid = params.get("uid");
 
-    if (person === undefined || person === null || person === "") {
-        Storage.display_error("No person specified");
+    if (uid === undefined || uid === null || uid === "") {
+        Shared.display_error("No person specified");
         return;
     }
 
-    console.debug("Loading " + person);
+    console.debug("Loading " + uid);
 
-    Blip.getPerson(person, (response) => {
-        person_object = Person.fromArray(response);
-        populatePage(person_object);
-    });
+    fetch_person(uid)
 }
 
 function load_person_bulk() {
     console.debug("Populating person page...");
     
     let params = new URLSearchParams(location.search);
-    let uids = params.get("bulk_edit").split(',');
+    let uids: string | string[] | null = params.get("bulk_edit");
+
+    if (uids === null || uids === undefined) {
+        Shared.display_error("No users specified");
+        return;
+    }
+    uids = uids.split(',');
 
     if (uids.length === 0) {
-        Storage.display_error("No users specified");
+        Shared.display_error("No users specified");
         return;
     } else if (uids.length === 1) {
-        Blip.getPerson(uids[0], (response) => {
-            person_object = Person.fromArray(response);
-            populatePage(person_object);
-        });
+        fetch_person(uids[0]);
         return;
     }
 
-    Storage.display_message(`Loading ${uids.length} users...`);
+    Shared.display_message(`Loading ${uids.length} users...`);
 
-    fetchBulkPersons(uids);
+    fetch_person_bulk(uids);
 }
 
-function fetchBulkPersons(uids) {
+function fetch_person(uid: string) {
+    Blip.get_person(uid, (status, response) => {
+        if (status === 200) {
+            persons_array = [Person.from_json(response)];
+            populate_page(persons_array[0]);
+        } else {
+            Shared.display_error(`Error: ${status} - ${response}`);
+        }
+    });
+} 
+
+function fetch_person_bulk(uids: string[]) {
    
-    if (Array.isArray(uids) && uids.length > 0) {
+    if (uids.length > 0) {
         let uid = uids[0];
-        Blip.getPerson(uid, (response) => {
-            person_object.push(Person.fromArray(response));
-            uids.shift();
-            fetchBulkPersons(uids);
-        });
-    } else if (uids.length === 0) {
-        populatePageBulk();
+        Blip.get_person(uid, (status, response) => {
+            if (status === 200) {
+                persons_array.push(Person.from_json(response));
+                uids.shift();
+                fetch_person_bulk(uids);
+            } else {
+                Shared.display_error(`Could not load persons, error with: ${uid}`);
+            }
+        })
+    } else {
+        populate_page_bulk();
     }
 }
 
-function populatePageBulk(uid_length) {
-    Storage.remove_message();
+function populate_page_bulk() {
+    Shared.remove_message();
 
-    let names = [];
+    let names: string[] = [];
 
-    for (let person of person_object) {
-        populatePage(person);
-        names.push(person.get("name"));
+    for (let person of persons_array) {
+        populate_page(person);
+        if (person.name !== undefined) {
+            names.push(person.name);
+        }
     }
 
-    console.debug(names);
-    document.getElementById("name_row").innerHTML = `<p>${names.join("<br>")}</p>`;
+    Shared.change_element("name_row", HTMLElement, (e) => {
+        e.innerHTML = `<p>${names.join("<br>")}</p>`;
+    });
     
     for (let element of ["uid_row", "profile_picture", "delete", "passreset"]) {
-        document.getElementById(element).remove();
+        Shared.change_element(element, HTMLElement, (e) => {
+            e.remove();
+        });
     }
 }
 
-function mergeElement(element_id, new_element) {
+function merge_elements(element_id: string, new_element: HTMLElement) {
     let element = document.getElementById(element_id);
     
-    if (element.href !== new_element.href) { //if new and old do not match, don't have a link.
+    if (element === null) return;
+
+    if ((element instanceof HTMLAnchorElement && new_element instanceof HTMLAnchorElement)
+         && element.href !== new_element.href) { //if new and old do not match, don't have a link.
         element.href = "";
     }
 
@@ -139,169 +188,223 @@ function mergeElement(element_id, new_element) {
     }
 }
 
-function populatePage(person) {
-    for (let attribute of Person.available_attributes.keys()) {
+function populate_page(person: Person) {
+    for (let attribute of Person.mutable_attributes.keys()) {
+        attribute = attribute as string;
+        let original_element = document.getElementById(attribute);
+        if (original_element === null) continue;
 
-        let element = document.getElementById(attribute).cloneNode(true);
-        element.innerHTML = parseAttribute(person.get(attribute));
+        let element = original_element.cloneNode(true) as HTMLElement;
 
-        if (attribute === "phone") {
-            element.href = "tel:" + element.innerHTML;
+        element.innerHTML = parse_attribute(person, attribute);
 
-        } else if (attribute === "phone_emergency") {
-            let inner = [];
-            for (let number of element.innerHTML.split("<br>")) {
-                inner.push(`<a href="tel:${number}">${number}</a>`);
-            }
-            element.innerHTML = inner.join("<br>");
-            
-        } else if (attribute === "email") {
-            element.href = "mailto:" + element.innerHTML;
+        if (element instanceof HTMLAnchorElement) {
+            element.href = element.href + element.innerHTML;   
         }
 
-        if (Array.isArray(person_object) && person.uid() !== person_object[0].uid()) {
-            mergeElement(attribute, element);
+        if (bulk_editing() && person.uid !== persons_array[0].uid) {
+            merge_elements(attribute, element);
         } else {
-            document.getElementById(attribute).replaceWith(element);
+            original_element.replaceWith(element);
         }
     }
     
-    if (!Array.isArray(person_object)) {
+    if (!bulk_editing()) {
         let element = document.getElementById("uid");
-        element.innerHTML = person.uid();
+        if (element !== null && person.uid !== undefined) element.innerHTML = person.uid;
 
-        setPhoto();
+        set_profile_picture();
     }
 }
 
-function setPhoto() {
-    person_object.fetchPhoto((photo) => {
-        let element = document.getElementById("profile_picture");
+function set_profile_picture() {
+    if (persons_array.length > 0) {
+        persons_array[0].fetch_photo((status, response: Blob) => {
+            Shared.change_element("profile_picture", HTMLImageElement, (e) => {
+                if (status === 200) {
+                    const img_url = URL.createObjectURL(response);
+                    e.src = img_url;
+                } else {
+                    e.src = Shared.BROKEN_IMAGE;
+                }
+            })
+        })
+    } else {
+        console.debug("Not setting profile picture, persons_array is empty.");
+    }
+}
 
-        if (element === null) return;
-        else {
-            element.src = photo;
+function parse_attribute(person: Person, attribute: string): string {
+    const value = person.get(attribute);
+    const type = Person.mutable_attributes.get(attribute);
+    
+    if (value === undefined) return "";
+    
+    if (type === "array") {
+        let arr: string[] = [];
+        if (Array.isArray(value)) {
+            for (const v of value) {
+                if (attribute === "phone_emergency") arr.push(`<a href="tel:${v}">${v}</a>`);
+                else arr.push(`<a>${v}</a>`);
+
+                arr.push(`<br>`);
+            }
+        } else {
+            if (attribute === "phone_emergency") arr.push(`<a href="tel:${value}">${value}</a>`);
+            else arr.push(`<a>${value}</a>`);
+            arr.push(`<br>`);
         }
-    });
-}
+        return arr.join('');
 
-function parseAttribute(value) {
-    if (value === undefined) {
-        return "";
+    } else if (type === "checkbox") {
+        return value === true ? "yes" : "no";
 
-    } else if (value.constructor === Array) {
-        return value.join("<br>");
-
-    } else if (value === true) {
-        return "yes";
-
-    } else if (value === false) {
-        return "no";
-
-    } else if (typeof(value) === "string" && value.includes("\n")) {
+    } else if (type === "textarea") {
         return value.replaceAll("\n", "<br>");
-    } else if (typeof(value) === "string" && value.includes("_")) {
-        return value.replace("_", " ");
+
+    } else if (type === "text") {
+        return value.replaceAll("_", " ");
     }
+
     return value;
 }
 
+function create_array(cur_element: HTMLElement) {
+    let element = document.createElement("fieldset");
+    
+    let add_button = document.createElement("button");
+    add_button.innerHTML = "Add entry";
+    element.appendChild(add_button);
+
+    let remove_button = document.createElement("button");
+    remove_button.innerHTML = "Remove entry";
+    element.appendChild(remove_button);
+    remove_button.onclick = () => {
+        let children = element.childNodes;
+        if (children.length > 2) {
+            element.removeChild(children.item(children.length - 3));
+        }
+    }
+
+    const create_array_input = (): HTMLInputElement => {
+        let input = document.createElement("input");
+        input.type = "text";
+        element.insertBefore(input, add_button);
+        return input;
+    }
+
+    add_button.onclick = create_array_input;
+
+    if (cur_element.classList.contains("multiple_values")) {
+        element.classList.add("multiple_values");
+        create_array_input().value = "multiple values";
+    } else {
+        for (const child of cur_element.children) {
+            if (child instanceof HTMLAnchorElement) {
+                create_array_input().value = child.innerHTML;
+            }
+        }
+    }
+
+    return element;
+}
+
 function edit() {
-     
-    for (let entry of Person.available_attributes.entries()) {
-        let attribute = entry[0]
-        let type = entry[1]
+    
+    Shared.change_element("cancel", HTMLElement, (e) => {
+        e.style.display = "";
+    });
 
-        let old = document.getElementById(attribute);
-        if (old === null || old === undefined) {
-            continue;
+    Shared.change_element("edit", HTMLElement, (e) => {
+        e.style.display = "none";
+    });
+
+    for (let entry of Person.mutable_attributes.entries()) {
+        let attribute = entry[0] as string;
+        let type = entry[1];
+
+        let cur_element = document.getElementById(attribute);
+        if (cur_element === null) continue;
+
+        let parent = cur_element.parentNode as HTMLElement;
+
+        let new_element: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | HTMLFieldSetElement = document.createElement("input")
+        new_element.value = cur_element.innerHTML;
+
+        if (cur_element.classList.contains("multiple_values")) {
+            new_element.classList.add("multiple_values");
         }
 
-        let parent = old.parentNode;
-
-        let e = document.createElement("input")
-        e.value = old.innerHTML;
-
-        if (old.classList.contains("multiple_values")) {
-            e.classList.add("multiple_values");
+        if (placeholders.has(attribute)){
+            new_element.placeholder = placeholders.get(attribute)!;
         }
 
-        if (attribute in placeholders){
-            e.placeholder = placeholders[attribute];
-        }
-
-        if (type === "string"){
-            e.type = "text";
-
-        } else if (type === "date") {
-            e.type = "date";
-
-        } else if (type === "multiline_string") {
-            e = document.createElement("textarea");
-            if (old.classList.contains("multiple_values")) {
-                e.classList.add("multiple_values");
+        if (type === "array") {
+            new_element = create_array(cur_element);
+        } else if (attribute === "membership") {
+            new_element = document.createElement("select");
+            if (cur_element.classList.contains("multiple_values")) {
+                new_element.classList.add("multiple_values");
             }
 
-            e.innerHTML = old.innerHTML.replaceAll("<br>", "\n");
+            let create_option = (option: string, select_element: HTMLSelectElement): HTMLOptionElement => {
+                let element = document.createElement("option");
+                element.label = option.replaceAll("_", " ");
+                element.value = option;
+                select_element.options.add(element);
 
-            if (e.innerHTML.includes("href")) {
-                let inner_new = [];
-                for (let inner of old.children) {
-                    if (inner.innerHTML != "") {
-                        inner_new.push(inner.innerHTML);
-                    }
+                if (cur_element.innerHTML === element.label) select_element.selectedIndex = select_element.options.length - 1;
+                return element;
+            };
+
+            if (new_element.classList.contains("multiple_values")) { //if the current membership has multiple values (only possible while bulk editing), create disabled option "multiple_values"
+                let option_element = create_option("multiple_values", new_element);
+                
+                option_element.label = "-- multiple values --";
+                option_element.disabled = true;
+                
+                new_element.options.selectedIndex = 0
+            }
+
+            for (const option of ["member", "candidate_member", "former_member", "ex_member", "donor", "honorary_member", "member_of_merit", "external"]) {
+                create_option(option, new_element);
+            }
+        } else {
+            new_element.type = type;
+            if (type === "checkbox") {
+                new_element.checked = cur_element.innerHTML === "yes";
+                new_element.classList.add("no-cursor");
+            }
+            else if (type === "textarea") {
+                new_element = document.createElement("textarea");
+                if (cur_element.classList.contains("multiple_values")) {
+                    new_element.classList.add("multiple_values");
                 }
-                console.debug(inner_new);
-                e.innerHTML = inner_new.join('\n');
-            }
+                new_element.innerHTML = cur_element.innerHTML.replaceAll("<br>", "\n");
 
-        } else if (type === "phone_number") {
-            e.type = "tel";
-
-        } else if (type === "bool") {
-            e.type = "checkbox";
-            e.checked = old.innerHTML === "yes";
-
-        } else if (type === "options") {
-            if (attribute === "membership") {
-                e = document.createElement("select");
-                if (old.classList.contains("multiple_values")) {
-                    e.classList.add("multiple_values");
-                }
-
-                e.required = true;
-                let select;
-                let index = 0;
-                ["member", "candidate_member", "former_member", "ex_member",
-                    "donor", "honorary_member", "member_of_merit", "external"].forEach((v) => {
-                    let option = document.createElement("option");
-                    let display = v.replaceAll("_", " ");
-
-                    if (v === old.innerHTML) select = index;
-                    option.value = v;
-                    option.innerHTML = display;
-                    e.options.add(option);
-                    index ++;
-                })
-                e.options.selectedIndex = select;
             }
         }
-        e.id = attribute;
-        e.oninput = (event) => {
-            e.classList.add("changed");
+
+        new_element.id = attribute;
+        new_element.oninput = (event) => {
+            new_element.classList.add("changed");
         };
 
-        parent.replaceChild(e, old);
+        parent.replaceChild(new_element, cur_element);
 
-        old.remove();
+        cur_element.remove();
     }
 }
 
-function bulk_save(object_array, index = 0) {
+function bulk_save(object_array: Person[], index = 0) {
     if (index < object_array.length && index >= 0) {
-        save(object_array[index], (o) => {
-            Storage.display_message(`Successfully saved for ${object_array[index].get("name")}`);
-            bulk_save(object_array, index + 1);
+        save(object_array[index], (s, r) => {
+            if (s === 200) {
+                Shared.display_message(`Successfully saved for ${object_array[index].name}`);
+                bulk_save(object_array, index + 1);
+            } else {
+                Shared.display_error(`Unable to save for ${object_array[index].name}`);
+            }
         });
         return;
     }
@@ -309,102 +412,91 @@ function bulk_save(object_array, index = 0) {
     location.reload();
 }
 
-function save(person_object, save_callback = null) {
-    console.debug(`Attempting to save ${person_object.uid()}`);
-    for (let entry of Person.available_attributes.entries()) {
-        let attribute = entry[0];
-        let type = entry[1];
+function save(person: Person, save_callback?: Callback) {
+    console.debug(`Attempting to save ${person.uid}`);
 
-        let old = document.getElementById(attribute);
-        if (old === null || old === undefined || 
-            (old.classList.contains("multiple_values") && !old.classList.contains("changed"))) {
-            console.debug(`Skipping ${attribute}`);
-            continue;
-        }
+    for (let entry of Person.mutable_attributes.entries()) {
+        const attribute = entry[0] as string;
+        const type = entry[1];
+
+        let element = document.getElementById(attribute);
         
-        let value = old.value;
+        let new_value: string | boolean | string[] | null;
 
-        let person_attr = person_object.get(attribute);
-
-        if (value === "") value = null;
-
-        if (person_attr === undefined && value === null) {
+        if (element === null 
+            || !element.classList.contains("changed") 
+            || !(element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement || element instanceof HTMLFieldSetElement) ) {
             console.debug(`Skipping ${attribute}`);
             continue;
-        } else if (value === null) {
-            person_object.set(attribute, value);
-            continue;
-        }
 
-        if (["firstname", "surname", "nickname"].includes(attribute) && value !== null && value !== undefined && value.split(" ").length === 1) {
-            
-            value = value.replace(/^\w/, c => c.toUpperCase()); //capitalize strings
+        } else if (element instanceof HTMLInputElement) {
+            new_value = element.value;
+            if (new_value === "") {
+                new_value = null;
 
-        } else if (type === "multiline_string") {
+            } else if (["firstname", "surname", "nickname"].includes(attribute) 
+                && !new_value.includes(" ")) {
+                new_value = new_value.replace(/^\w/, c => c.toUpperCase()); //capitalize strings
 
-            if (attribute !== "address" && attribute !== "phone_emergency") {
+            } else if (type === "checkbox") {
+                new_value = element.checked;
 
-                if ((typeof person_attr === "string" && person_attr !== value) ||
-                    (Array.isArray(person_attr) && person_attr.join('\n') !== value) ||
-                    person_attr === undefined) {
-                    person_object.set(attribute, value.split('\n'));
-                } 
-                continue;
-
-            } else if (attribute === "phone_emergency") {
-                
-                if ((typeof person_attr === "string" && person_attr !== value) || 
-                    (Array.isArray(person_attr) && person_attr.join('\n') !== value) ||
-                    person_attr === undefined) {
-                        value = value.replace("\n\n", "\n");
-                        person_object.set(attribute, value.split('\n'));
-                }
+            }
+        } else if (element instanceof HTMLSelectElement) {
+            let selected_element = element.selectedOptions.item(0);
+            if (selected_element === null) {
+                console.debug(`Skipping ${attribute}`);
                 continue;
             }
-        } else if (type === "options") {
-            value = old.options.item(old.options.selectedIndex).value;
+            new_value = selected_element.value;
 
-        } else if (type === "bool") {
-            value = old.checked;
-
-        } 
-
-        if (person_attr !== value || person_object.uid() === undefined) { //always force save new user attributes
-            person_object.set(attribute, value);
+        } else if (element instanceof HTMLFieldSetElement) {
+            new_value = [];
+            for (const child of element.children) {
+                if (child instanceof HTMLInputElement) {
+                    new_value.push(child.value);
+                }
+            }
         } else {
-            console.debug(`Skipping ${attribute}`);
+            new_value = element.value;
         }
+
+        person.set(attribute, new_value);      
     }
-    person_object.save(save_callback);
+    person.save(save_callback);
 }
 
 function delete_person() {
-    Bolklogin.checkAuthorization((status, response) => {
+    Bolklogin.check_authorization((status, response) => {
         if (status === 200) {
-            if (confirm("Do you want to delete " + person_object.get("name"))) {
-                if (!confirm("Select the CANCEL button if you're sure.")){
-                    Blip.deletePerson(person_object.uid(), (s, r) => {
+            if (bulk_editing() || persons_array[0] === undefined || persons_array[0].uid === undefined) return;
+
+            else if (confirm(`Are you sure you want to delete ${persons_array[0].name}?`)) {
+                if (!confirm("Select the CANCEL button if you're sure.")) {
+                    Blip.delete_person(persons_array[0].uid, (s, r) => {
                         if (s === 200) {
-                            alert("Successfully deleted " + person_object.get("name"));
-                            location.replace(Storage.APP_ADDRESS);
-                        } else{
-                            Storage.display_error(r);
+                            alert(`Successfully deleted ${persons_array[0].name}`);
+                            location.replace(ADDRESSES.APP);
+                        } else {
+                            Shared.display_error(r);
                         }
                     });
                 }
             }
         } else {
-            Storage.display_error("You are not authorized to do this.");
+            Shared.display_error("You are not authorized to do this.");
         }
     });
 }
 
 function reset_password() {
-    Blip.patchResetPassword(person_object.uid(), (status, response) => {
+    if (bulk_editing() || persons_array[0] === undefined || persons_array[0].uid === undefined) return;
+
+    Blip.reset_password(persons_array[0].uid, (status, response) => {
         if (status === 200) {
-            alert("Password reset successfully and mail sent.");
+            Shared.display_message("Password reset successfully and mail sent.");
         } else {
-            Storage.display_error("Server was not able to reset the password.");
+            Shared.display_error("Server was not able to reset password.");
         }
     });
 }

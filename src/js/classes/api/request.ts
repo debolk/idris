@@ -1,45 +1,78 @@
+import { URLBuilder } from "../url_builder";
+
+export type Callback = (status: number, response: any) => void;
+
+export enum ResponseType {
+    TEXT,
+    BLOB,
+    JSON
+}
+
 export class Request {
 
-    static RequestType = {"POST": "POST", "PATCH": "PATCH", "GET": "GET", "DELETE": "DELETE"};
+    private type: "POST" | "PATCH" | "GET" | "DELETE";
+    private url: string;
+    private requestinit: RequestInit;
 
-    constructor(type, url, callback, json = null, timeout = 0, textResponse = true) {
-        let request = new XMLHttpRequest();
+    constructor(type: "POST" | "PATCH" | "GET" | "DELETE", url: string | URLBuilder, body?: any, timeout: number = 5000) {
+        if (typeof url !== "string") {
+            this.url = url.build();
+        } else {
+            this.url = url;
+        }
+        this.type = type;
 
-        request.open(type, url);
-        console.debug(`Opened connection to ${url}`);
+        this.requestinit = {
+            method: this.type,
+            signal: AbortSignal.timeout(timeout)
+        };
 
-        request.timeout = timeout;
-        request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-        request.setRequestHeader("Accept","application/json");
+        if (body !== undefined) {
+            this.requestinit.body = JSON.stringify(body);
+            this.requestinit.headers = {
+                "Content-Type": "application/json; charset=UTF-8"
+            };
+        }
 
-        request.onreadystatechange = () => {
-            if (request.readyState === 4) {
-                console.debug('Received response', request.status, request.statusText);
+    }
+
+    async open(callback: Callback, response_type: ResponseType = ResponseType.JSON) {
+        
+        try {
+            const response = await fetch(this.url, this.requestinit);
+
+            console.debug(`Opened connection to ${this.url}`);
+
+            if (response.ok) {
+                const status = response.status;
                 
-                if (textResponse) {
-                    // console.debug(request.responseText);
-                    callback(request.status, request.responseText);
-                } else {
-                    callback(request.status, request.response);
+                console.debug(`Received response\n ${status}: ${response.statusText}`);
+                
+                let data: any;
+                switch (response_type) {
+                    case ResponseType.BLOB:
+                        data = await response.blob();
+                        break;
+                    case ResponseType.JSON:
+                        data = await response.json();
+                        break;
+                    case ResponseType.TEXT:
+                        data = await response.text();
+                        break;
                 }
-            }
-        }
-
-        request.ontimeout = () => {
-            console.error('Server timed out for the request.');
-            callback(408, "Server timed out.");
-        }
-
-        if (json != null) {
-            if (typeof json === "string") {
-                request.send(json);
+                callback(status, data);
             } else {
-                request.send(JSON.stringify(json));
+                callback(response.status, response.statusText);
             }
-        } else if (textResponse === false) {
-            request.responseType = "blob";
-            request.send();
+            
+        } catch(err: unknown) {
+
+            if (err instanceof Error && (err.name === "TimeoutError" || err.name === "AbortError")) {
+                console.error("Server timed out.");
+                callback(408, "Server timed out.");
+            } else {
+                console.error(err);
+            }
         }
-        else request.send();
     }
 }

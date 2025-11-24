@@ -1,118 +1,127 @@
-import {API} from "/js/classes/requests/api.js";
-import {URLBuilder} from "/js/classes/helpers/url_builder.js";
-import {Storage} from "/js/classes/helpers/storage.js";
-import {Request} from "/js/classes/requests/request.js";
+import { API } from "./api";
+import { URLBuilder } from "../url_builder";
+import { Callback, Request } from "./request";
+import { ADDRESSES, PARAMETERS, Shared, STORAGE_KEYS } from "../share";
 
 export class Bolklogin extends API {
 
-    static restartProcess() {
+    static restart_process() {
         console.warn("Restarting login process...");
-        Storage.clearStorage();
-        location.replace(Storage.APP_ADDRESS);
+        Shared.clear_storage();
+        location.replace(ADDRESSES.APP);
     }
 
-    static getAccessToken() {
-        return Storage.getVariable(Storage.STORAGE.ACCESS_TOKEN_STORAGE);
+    static get_access_token(): string {
+        return Shared.get_var(STORAGE_KEYS.ACCESS_TOKEN_STORAGE);
     }
 
-    static requestToken(json){
-        new Request(Request.RequestType.POST,
-            Storage.LOGIN_ADDRESS + "token", (status, response) => {
-            if ( status === 200 ){
-                let data = JSON.parse(response);
-                let access = data[Storage.PARAMETERS.ACCESS_TOKEN];
-                let refresh = data[Storage.PARAMETERS.REFRESH_TOKEN];
-                let expires = parseInt(data[Storage.PARAMETERS.EXPIRES]);
+    static request_token(json: any){
+        let request = new Request("POST", new URLBuilder(ADDRESSES.AUTH)
+            .path("token")
+            .build(), json
+        );
+
+        request.open((status, response) => {
+            if (status === 200) {
+                let access_token: string = response[PARAMETERS.ACCESS_TOKEN];
+                let refresh_token: string = response[PARAMETERS.REFRESH_TOKEN];
+                let expires_in: number = response[PARAMETERS.EXPIRES];
 
                 console.debug("Validating token...");
 
-                this.validateToken(access, refresh, expires);
+                this.validate_token(access_token, refresh_token, expires_in);
             }
-        }, json);
+        });
     }
 
     static login(redirected = false) {
 
         console.debug("Logging in...");
 
-        let login_state = this.checkLoginState();
+        let login_state = this.check_login_state();
 
         if ( !redirected && !login_state ) {
 
-            let uri = new URLBuilder(Storage.LOGIN_ADDRESS)
-                .path("authenticate")
+            let url = new URLBuilder(ADDRESSES.AUTH)
+                .path("authorize")
                 .parameter("response_type", "code")
-                .parameter("client_id", Storage.CLIENT_ID)
-                .parameter("redirect_uri", Storage.APP_REDIRECT_ADDRESS)
-                .parameter("state", this.getStateID())
+                .parameter("client_id", Shared.CLIENT_ID)
+                .parameter("redirect_uri", ADDRESSES.APP_REDIRECT)
+                .parameter("state", this.get_stateid())
                 .build();
-
-            location.replace(uri);
+            
+            location.replace(url);
             return false;
 
         } else if ( !login_state ) {
-            let state = this.getParameter("state");
 
-            if ( state !== this.getStateID() ) {
-                if ( state === "1" ) return false; //TODO: CREATE ERROR PAGE ACCESS DENIED
-                else {
+            let state = this.get_parameter("state");
+
+            if ( state !== this.get_stateid() ) {
+                if ( state === "1" ) {
+                    Shared.display_error("You denied authorization");
+                    return false;
+                } else {
                     alert("WARNING: THE STATE PARAMETER DID NOT MATCH\nYou might be at risk of a CSRF-attack.");
-                    this.restartProcess();
+                    this.restart_process();
                     return false;
                 }
             } else {
-                this.requestToken({"grant_type": "authorization_code"
-                    , "redirect_uri": Storage.APP_REDIRECT_ADDRESS
-                    , "code": this.getParameter("code")
-                    , "client_id": Storage.CLIENT_ID
-                    , "client_secret": Storage.CLIENT_SECRET});
+                this.request_token({"grant_type": "authorization_code",
+                    "redirect_uri": ADDRESSES.APP_REDIRECT,
+                    "code": this.get_parameter("code"),
+                    "client_id": Shared.CLIENT_ID,
+                    "client_secret": Shared.CLIENT_SECRET});
             }
         }
 
         return login_state;
     }
 
-    static validateToken(access_token, refresh_token, expires) {
-        console.debug(access_token);
-        new Request(Request.RequestType.GET, new URLBuilder(Storage.LOGIN_ADDRESS)
+    static validate_token(access_token: string, refresh_token: string, expires: number) {
+        let request = new Request("GET", new URLBuilder(ADDRESSES.AUTH)
             .path("resource")
-            .parameter(Storage.PARAMETERS.ACCESS_TOKEN, access_token)
-            .build(), (status, response) => {
+            .parameter(PARAMETERS.ACCESS_TOKEN, access_token)
+            .build()
+        );
+
+        request.open((status, response) => {
             if (status === 200) {
-                let data = JSON.parse(response);
-
-                if (data[Storage.PARAMETERS.ACCESS_TOKEN] === access_token) {
-
+                if (response[PARAMETERS.ACCESS_TOKEN] === access_token) {
                     let expiry = new Date();
                     expiry.setTime(expiry.getTime() + (expires * 1000));
 
-                    Storage.setVariable(Storage.STORAGE.ACCESS_TOKEN_STORAGE, access_token);
-                    Storage.setVariable(Storage.STORAGE.REFRESH_TOKEN_STORAGE, refresh_token);
-                    Storage.setVariable(Storage.STORAGE.EXPIRY_TOKEN_STORAGE, expiry.getTime());
-                    Storage.setVariable(Storage.STORAGE.USER_ID, data[Storage.PARAMETERS.USER_ID]);
-                    setTimeout(this.refreshToken, expires * 1000);
+                    Shared.set_var(STORAGE_KEYS.ACCESS_TOKEN_STORAGE, access_token);
+                    Shared.set_var(STORAGE_KEYS.REFRESH_TOKEN_STORAGE, refresh_token);
+                    Shared.set_var(STORAGE_KEYS.EXPIRY_TOKEN_STORAGE, expiry.getTime());
+                    Shared.set_var(STORAGE_KEYS.USER_ID, response[PARAMETERS.USER_ID]);
 
-                    location.replace(Storage.APP_ADDRESS);
+                    setTimeout(this.refresh_token, expires * 1000 - 64000);
+
+                    location.replace(ADDRESSES.APP);
+
                 } else {
-                    alert("WARNING: access_token not valid");
-                    this.restartProcess();
+                    alert("WARNING: access token not valid");
+                    this.restart_process();
                 }
+            } else {
+                console.debug(response);
+                Shared.display_error("ERROR: login failed, please try again.");
             }
-        })
-
+        });
     }
 
-    static refreshToken() {
+    static refresh_token() {
         console.debug("Refreshing access token...");
-        Bolklogin.requestToken({"grant_type": "refresh_token"
-            , "refresh_token": Storage.getVariable(Storage.STORAGE.REFRESH_TOKEN_STORAGE)
-            , "client_id": Storage.CLIENT_ID
-            , "client_secret": Storage.CLIENT_SECRET});
+        Bolklogin.request_token({"grant_type": "refresh_token",
+            "refresh_token": Shared.get_var(STORAGE_KEYS.REFRESH_TOKEN_STORAGE),
+            "client_id": Shared.CLIENT_ID,
+            "client_secret": Shared.CLIENT_SECRET});
     }
 
-    static checkLoggedIn() {
-        if (!this.checkLoginState()) {
-            if (location.href.startsWith(Storage.APP_REDIRECT_ADDRESS)) {
+    static is_logged_in() {
+        if (!this.check_login_state()) {
+            if (location.href.startsWith(ADDRESSES.APP_REDIRECT)) {
                 return this.login(true);
             }
             alert("Welcome to I.D.R.I.S.\nPlease press OK to log in.");
@@ -122,42 +131,39 @@ export class Bolklogin extends API {
         return true;
     }
 
-    static checkLoginState() {
-        if (Storage.hasVariable(Storage.STORAGE.ACCESS_TOKEN_STORAGE) &&
-        Storage.hasVariable(Storage.STORAGE.REFRESH_TOKEN_STORAGE &&
-        Storage.hasVariable(Storage.STORAGE.EXPIRY_TOKEN_STORAGE))) {
-            console.debug(`ACCESS_TOKEN_STORAGE: ${Storage.getVariable(Storage.STORAGE.ACCESS_TOKEN_STORAGE)}`);
-            return false;
-        }
+    static check_login_state() {
+        if (!Shared.has_var(STORAGE_KEYS.ACCESS_TOKEN_STORAGE) ||
+            !Shared.has_var(STORAGE_KEYS.REFRESH_TOKEN_STORAGE) ||
+            !Shared.has_var(STORAGE_KEYS.EXPIRY_TOKEN_STORAGE)
+        ) return false;
 
         let current_date = new Date().getTime();
-        let expiry_date = Storage.getVariable(Storage.STORAGE.EXPIRY_TOKEN_STORAGE);
-
+        let expiry_date: number = Shared.get_var(STORAGE_KEYS.EXPIRY_TOKEN_STORAGE);
+        
         let logged_in = expiry_date > current_date;
         if (logged_in) {
             let timeout = expiry_date - current_date - 64000;
             console.debug("User logged in, setting the refresh timeout.");
             console.debug(`Refreshing in ${timeout/1000} seconds`);
-            setTimeout(this.refreshToken, timeout);
+            setTimeout(this.refresh_token, timeout);
         }
         return logged_in;
     }
 
     static logout(){
-        if (this.checkLoginState()) {
-            Storage.clearStorage();
-            location.replace(Storage.APP_ADDRESS);
+        if (this.check_login_state()) {
+            Shared.clear_storage();
+            location.replace(ADDRESSES.APP);
         }
     }
 
-    static checkAuthorization(callback) {
-        new Request(
-            Request.RequestType.POST, new URLBuilder(Storage.LOGIN_ADDRESS)
-                .path("bestuur")
-                .access_token(Bolklogin.getAccessToken())
-                .build(),
-            (status, response) => {
-                callback(status, response);
-            });
+    static check_authorization(callback: Callback) {
+        let request = new Request("POST", new URLBuilder(ADDRESSES.AUTH)
+            .path("bestuur")
+            .access_token(Bolklogin.get_access_token())
+            .build()
+        );
+        
+        request.open(callback);
     }
 }

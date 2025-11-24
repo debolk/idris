@@ -1,190 +1,214 @@
-import {Blip} from "/js/classes/requests/blip.js";
-import {Storage} from "/js/classes/helpers/storage.js";
-import {PersonController} from "/js/classes/persons_controller.js";
+import { Blip } from "./api/blip";
+import { Callback } from "./api/request";
+import { PersonController } from "./person_controller";
+import { Shared } from "./share";
 
-export class Person {
-    /**
-     *
-     * @type {Map<string, string>}
-     */
-    static available_attributes = new Map([
-        ["initials", "string"],
-        ["firstname", "string"],
-        ["surname", "string"],
-        ["nickname", "string"],
-        ["email", "string"],
-        ["pronouns", "string"],
-        ["phone", "phone_number"],
-        ["phone_emergency", "multiline_string"],
-        ["address", "multiline_string"],
+export interface IPerson {
+    [key: string]: any;
+
+    uid?: string;
+    initials?: string;
+    firstname?: string;
+    surname?: string;
+    nickname?: string;
+    name?: string;
+    membership?: string;
+    dateofbirth?: string;
+    pronouns?: string;
+    email?: string;
+    phone?: string;
+    phone_emergency?: string;
+    address?: string;
+    inauguration_date?: string;
+    resignation_letter_date?: string;
+    resignation_date?: string;
+    programme?: string;
+    institution?: string;
+    photo_visible?: boolean;
+    iva?: boolean;
+    dead?: boolean;
+    no_obligations?: boolean;
+    avg?: boolean;
+    avg_address?: boolean;
+    avg_dob?: boolean;
+    avg_institution?: boolean;
+    avg_programme?: boolean;
+    avg_email?: boolean;
+    avg_phone_emergency?: boolean;
+    avg_phone?: boolean;
+    avg_pronouns?: boolean;
+}
+
+export class Person implements IPerson {
+    [key: string]: any;
+
+    uid?: string;
+    initials?: string;
+    firstname?: string;
+    surname?: string;
+    nickname?: string;
+    name?: string;
+    membership?: string;
+    dateofbirth?: string;
+    pronouns?: string;
+    email?: string;
+    phone?: string;
+    phone_emergency?: string;
+    address?: string;
+    inauguration_date?: string;
+    resignation_letter_date?: string;
+    resignation_date?: string;
+    programme?: string;
+    institution?: string;
+    photo_visible?: boolean;
+    iva?: boolean;
+    dead?: boolean;
+    no_obligations?: boolean;
+    avg?: boolean;
+    avg_address?: boolean;
+    avg_dob?: boolean;
+    avg_institution?: boolean;
+    avg_programme?: boolean;
+    avg_email?: boolean;
+    avg_phone_emergency?: boolean;
+    avg_phone?: boolean;
+    avg_pronouns?: boolean;
+
+    static mutable_attributes: Map<keyof IPerson, string> = new Map([
+        ["initials", "text"],
+        ["firstname", "text"],
+        ["surname", "text"],
+        ["nickname", "text"],
+        ["email", "email"],
+        ["pronouns", "text"],
+        ["phone", "tel"],
+        ["phone_emergency", "array"],
+        ["address", "textarea"],
         ["dateofbirth", "date"],
         ["membership", "options"],
         ["inauguration_date", "date"],
         ["resignation_letter_date", "date"],
         ["resignation_letter_date", "date"],
         ["resignation_date", "date"],
-        ["programme", "multiline_string"],
-        ["institution", "multiline_string"],
-        ["dead", "bool"],
-        ["no_obligations", "bool"]
+        ["programme", "array"],
+        ["institution", "array"],
+        ["dead", "checkbox"],
+        ["no_obligations", "checkbox"]
     ]);
 
-    /**
-     * @type {Map<string, any>}
-     */
-    #attributes;
+    private dirty: (keyof IPerson)[] = [];
 
-    /**
-     * @type {Map<string, any>}
-     */
-    #changed_attributes;
+    private photo: string | Blob = "";
 
-    /**
-     * @type {String}
-     */
-    #photo;
-
-    constructor() {
-        this.#attributes = new Map();
-        this.#changed_attributes = new Map();
-
-        this.#photo = null;
+    constructor(data: IPerson = {}) {
+        Object.assign(this, data);
     }
 
-    static fromEmpty() {
+    static from_empty() {
         let person = new Person();
-        for (let attribute of this.available_attributes.keys()) {
-            person.#attributes.set(attribute, "");
+        for (let attribute of this.mutable_attributes.keys()) {
+            person.set(attribute, "");
         }
-        person.#attributes.set('membership', "candidate_member");
+        person.membership = "candidate_member";
         return person;
     }
 
-    static fromArray(json) {
-        if (typeof json === "string") json = JSON.parse(json);
-        let person = new Person();
-
-        for (let entry of Object.entries(json)){
-            person.#attributes.set(entry[0], entry[1]);
-        }
+    static from_json(json: IPerson) {
+        let person = new Person(json);
         
-        if (Storage.hasVariable(`${person.uid()}-photo`)) {
-            person.setPhoto(Storage.getVariable(`${person.uid()}-photo`));
-        }
-
-        //let print = '';
-        //person.#attributes.forEach((v, k, m) => {
-        //    print += `${k}: ${v} ${typeof v}\n`;
-        //});
-        //console.debug(print);
         return person;
     }
 
-    fetchPhoto(callback) {
-        if (this.hasPhoto()) {
-            callback(this.#photo);
+    fetch_photo(callback: Callback) {
+        if (this.has_photo()) {
+            callback(200, this.photo);
             return;
         }
         
-        Blip.getPersonPhoto(this.uid(), (response) => {
-            this.#photo = response;
-            callback(response);
-        });
+        if (this.uid !== undefined) Blip.get_person_photo(this.uid, callback);
     }
 
-    getPhoto() {
-        if (this.hasPhoto()) {
-            return this.#photo;
+    get_photo(): string | Blob  {
+        if (this.has_photo()) {
+            return this.photo;
             
-        } else if (Storage.hasVariable(`${this.uid()}-photo`)) {
-            this.setPhoto(Storage.getVariable(`${this.uid()}-photo`));
-            return this.#photo;
         }
+        return Shared.BROKEN_IMAGE;
     }
 
-    setPhoto(photo) {
-        if (this.hasPhoto()) {
+    set_photo(photo: string | Blob) {
+        if (this.has_photo()) {
             return;
-        } else if (!Storage.hasVariable(`${this.uid()}-photo`)) {
-            Storage.setVariable(`${this.uid()}-photo`, photo);
         }
 
-        this.#photo = photo;
+        this.photo = photo;
     }
 
-    hasPhoto() {
-        return this.#photo !== null;
+    has_photo(): boolean {
+        return this.photo !== "";
     }
 
-    get(var_name) {
-        if ( !this.#attributes.has(var_name) ) return undefined;
-        return this.#attributes.get(var_name);
+    get<K extends keyof IPerson>(key: K): IPerson[K] {
+        return this[key];
     }
 
-    set(var_name, value) {
-        if ( !Person.available_attributes.has(var_name) ) return false;
+    set<K extends keyof IPerson>(key: K, value: IPerson[K]): boolean {
+        if (!Person.mutable_attributes.has(key)) return false;
 
-        console.debug(`Setting ${var_name} to ${value}`);
-        this.#attributes.set(var_name, value);
-        this.#changed_attributes.set(var_name, value);
-
+        (this as IPerson)[key] = value;
+        this.dirty.push(key);
         return true;
     }
 
-    save(callback = null) {
-        if (this.#changed_attributes.size > 0) {
-            let to_save = {};
-            let print = 'Attribute(s):\n';
-            this.#changed_attributes.forEach((v, k, m) => {
-                print += `${k}: ${v}\n`;
-                to_save[k] = v;
-            })
+    save(callback?: Callback) {
+        if (this.changed_attributes.size > 0) {
+            
+            let to_save: IPerson = {};
+            for (const k of this.dirty) {
+                const key = k as keyof IPerson;
+                to_save[key] = this.get(key);
+            }
             console.debug(print);
 
-            if (this.get('uid') !== undefined) {
-                Blip.patchPerson(this.uid(), JSON.stringify(to_save), (s, r) => {
-                    if (s !== 200) {
-                        Storage.display_error(r);
-                    } else {
-                        if (callback !== null) {
-                            callback();
-                        } else {
-                            alert(`Successfully saved changes for ${this.get("name")}`);
-                            location.reload();
-                        }
-                    }
-                });
+            if (this.uid !== undefined) {
+                Blip.update_person(this.uid, to_save, callback);
+                // Blip.patchPerson(this.uid(), JSON.stringify(to_save), (s, r) => {
+                //     if (s !== 200) {
+                //         Storage.display_error(r);
+                //     } else {
+                //         if (callback !== null) {
+                //             callback();
+                //         } else {
+                //             alert(`Successfully saved changes for ${this.get("name")}`);
+                //             location.reload();
+                //         }
+                //     }
+                // });
             } else {
-                let create_person = () => Blip.newPerson(JSON.stringify(to_save), (s, r) => {
-                    if (s !== 200) {
-                        Storage.display_error(r)
-                    } else {
-                        alert(`Successfully created ${to_save["firstname"]} ${to_save["surname"]}`);
-                        location.replace(Storage.APP_ADDRESS);
-                    }
-                });
+                let create_person = () => Blip.new_person(to_save, callback);
+                let display_error = () => Shared.display_error("A user with this email address already exists.");
+                   
+                //     (s, r) => {
+                //     if (s !== 200) {
+                //         Storage.display_error(r)
+                //     } else {
+                //         alert(`Successfully created ${to_save["firstname"]} ${to_save["surname"]}`);
+                //         location.replace(Storage.APP_ADDRESS);
+                //     }
+                // });
 
-                PersonController.emailRegistered(this.#attributes.get("email"), (name, membership) => {
-                    Storage.display_error(`A user with this email address already exists: ${name}<br>They are a(n) ${membership}.`);
-                }, create_person);
+                if (this.email !== undefined) PersonController.email_registered(this.email, display_error, create_person);
+                else Shared.display_error("No email address has been provided, please provide one.");
             }
         }
     }
 
-    toArray() {
-        let data = [];
-        for (let key of Person.available_attributes.keys()){
-            let value = this.get(key);
-            if (value === undefined) value = '';
-            else if (typeof value === "string" && value.toString().includes(",")) {
-                value = '"' + value + '"';
-            }
-            data.push(value);
+    to_array(): string[] {
+        let data: string[] = [];
+        for (const k of Person.mutable_attributes.keys()) {
+            const key = k as keyof IPerson;
+            data.push(this.get(key));
         }
         return data;
-    }
-
-    uid() {
-        return this.get('uid');
     }
 }

@@ -1,154 +1,106 @@
-import {API} from "/js/classes/requests/api.js";
-import {Request} from "/js/classes/requests/request.js";
-import {Storage} from "/js/classes/helpers/storage.js";
-import {Bolklogin} from "/js/classes/requests/bolklogin.js";
-import {URLBuilder} from "/js/classes/helpers/url_builder.js";
+import { API } from "./api";
+import { Callback, Request, ResponseType } from "./request";
+import { Bolklogin } from "./bolklogin";
+import { URLBuilder } from "../url_builder";
+import { ADDRESSES } from "../share";
+import { IPerson } from "../person";
 
 export class Blip extends API {
 
-    static getAll(callback) {
-        new Request(Request.RequestType.GET, new URLBuilder(Storage.BLIP_ADDRESS)
-            .path('/persons/all')
-            .access_token(Bolklogin.getAccessToken())
-            .build(), (status, response) => {
-            if (status === 200) {
-                callback(response);
-            }
-        });
+    static get_request(path:string, callback: Callback, response_type: ResponseType = ResponseType.JSON) {
+        let request = new Request("GET", new URLBuilder(ADDRESSES.BLIP)
+            .path(path)
+            .access_token(Bolklogin.get_access_token())
+            .build()
+        )
+        request.open(callback, response_type);
     }
 
-    static getAllBasic(callback) {
-        new Request(Request.RequestType.GET, new URLBuilder(Storage.BLIP_ADDRESS)
-            .path('/persons')
-            .access_token(Bolklogin.getAccessToken())
-            .build(), (status, response) => {
-            if (status === 200) {
-                callback(response);
-            } else {
-                console.error(status, response);
-            }
-        })
+    static get_all(callback: Callback) {
+        this.get_request("/persons/all", callback);
     }
 
-    static getPersonPhoto(uid, callback) {
-        let url = new URLBuilder(Storage.BLIP_ADDRESS)
-            .path("person")
-            .path(uid)
-            .path("photo")
-            .access_token(Bolklogin.getAccessToken())
-            .build();
-
-        new Request(Request.RequestType.GET, url, (status, response) => {
-            if (status === 200) {
-                let reader = new FileReader();
-                reader.readAsDataURL(response);
-                reader.onloadend = function() {
-                    callback(reader.result);
-                }
-            } else {
-                callback(Storage.BROKEN_IMAGE);
-            }
-        }, null, 10000, false);
+    static get_all_basic(callback: Callback) {
+        this.get_request("/persons", callback);
     }
 
-    static getPhotos(uids, callback) {
+    static get_person_photo(uid: string, callback: Callback) {
+        this.get_request(`/person/${uid}/photo`, callback, ResponseType.BLOB);
+    }
+
+    static get_multiple_photos(uids: string[] | string, callback: Callback) {
         if (Array.isArray(uids)) {
-            uids = uids.join();
+            uids = uids.join(',');
         }
-        let url = new URLBuilder(Storage.BLIP_ADDRESS)
+        let url = new URLBuilder(ADDRESSES.BLIP)
             .path("persons")
             .path("photo")
             .parameter("users", uids)
-            .access_token(Bolklogin.getAccessToken())
+            .access_token(Bolklogin.get_access_token())
             .build();
-        
-        new Request(Request.RequestType.GET, url, (status, response) => {
-                callback(status, response);
-        })
+        let request = new Request("GET", url);
+        request.open(callback);
     }
 
-    static getPerson(uid, callback) {
-        let url = new URLBuilder(Storage.BLIP_ADDRESS)
-            .path("person")
-            .path(uid)
-            .path("all")
-            .access_token(Bolklogin.getAccessToken())
-            .build();
-
-        new Request(Request.RequestType.GET, url, (status, response) =>{
-            if (status === 200) {
-                callback(response);
-            } else {
-                Storage.display_error(`Could not find ${uid}!`);
-            }
-        });
+    static get_person(uid: string, callback: Callback) {
+        this.get_request(`/person/${uid}/all`, callback)
+        // new Request(Request.RequestType.GET, url, (status, response) =>{
+        //     if (status === 200) {
+        //         callback(response);
+        //     } else {
+        //         Storage.display_error(`Could not find ${uid}!`);
+        //     }
+        // });
     }
 
-    static getPersonBasic(uid, callback) {
-        let url = new URLBuilder(Storage.BLIP_ADDRESS)
-            .path("person")
-            .path(uid)
-            .access_token(Bolklogin.getAccessToken())
-            .build();
-
-        new Request(Request.RequestType.GET, url, (status, response) => {
-           callback(status, response);
-        });
-    }
-
-    static patchPerson(uid, data, callback = null) {
-        console.debug(data);
-        new Request(Request.RequestType.PATCH, new URLBuilder(Storage.BLIP_ADDRESS)
+    static update_person(uid: string, data: IPerson, callback?: Callback) {
+        let request = new Request("PATCH", new URLBuilder(ADDRESSES.BLIP)
             .path("person")
             .path(uid)
             .path("update")
-            .access_token(Bolklogin.getAccessToken())
-            .build(), (status, response) => {
-            if (callback != null) callback(status, response);
-        }, data);
-    }
-
-    static patchPassword(uid, data, callback = null) {
-        console.debug(data);
-        new Request(Request.RequestType.PATCH, new URLBuilder(Storage.BLIP_ADDRESS)
-            .path("person")
-            .path(uid)
-            .path("password")
-            .access_token(Bolklogin.getAccessToken())
-            .build(), (status, response) => {
-            if (callback != null) callback(status, response);
-        }, data);
-    }
-
-    static patchResetPassword(uid, callback = null) {
-        new Request(Request.RequestType.PATCH, new URLBuilder(Storage.BLIP_ADDRESS)
-            .path("person")
-            .path(uid)
-            .path("resetpassword")
-            .access_token(Bolklogin.getAccessToken())
-            .build(), (status, response) => {
-            if (callback != null) callback(status, response);
+            .access_token(Bolklogin.get_access_token())
+            .build(), data
+        )
+        request.open((s, r) => {
+            if (callback !== undefined) callback(s, r);
         });
     }
 
-    static newPerson(data, callback = null) {
-        console.debug(data);
-        new Request(Request.RequestType.POST, new URLBuilder(Storage.BLIP_ADDRESS)
-            .path("person")
-            .access_token(Bolklogin.getAccessToken())
-            .build(), (status, response) => {
-           if (callback != null) callback(status, response);
-        }, data);
-    }
-
-    static deletePerson(uid, callback = null) {
-        console.debug(uid);
-        new Request(Request.RequestType.DELETE, new URLBuilder(Storage.BLIP_ADDRESS)
+    static reset_password(uid: string, callback?: Callback) {
+        let request = new Request("PATCH", new URLBuilder(ADDRESSES.BLIP)
             .path("person")
             .path(uid)
-            .access_token(Bolklogin.getAccessToken())
-            .build(), (status, response) => {
-           if (callback != null) callback(status, response);
+            .path("resetpassword")
+            .access_token(Bolklogin.get_access_token())
+            .build()
+        );
+        request.open((s, r) => {
+            if (callback !== undefined) callback(s, r);
+        });
+    }
+
+    static new_person(data: IPerson, callback?: Callback) {
+        let request = new Request("POST", new URLBuilder(ADDRESSES.BLIP)
+            .path("person")
+            .access_token(Bolklogin.get_access_token())
+            .build(), data
+        );
+        
+        request.open((s, r) => {
+            if (callback !== undefined) callback(s, r);
+        });
+    }
+
+    static delete_person(uid: string, callback?: Callback) {
+        let request = new Request("DELETE", new URLBuilder(ADDRESSES.BLIP)
+            .path("person")
+            .path(uid)
+            .access_token(Bolklogin.get_access_token())
+            .build()
+        )
+
+        request.open((s, r) => {
+            if (callback !== undefined) callback(s, r);
         });
     }
 }

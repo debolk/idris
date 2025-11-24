@@ -1,26 +1,23 @@
-import {Blip} from "/js/classes/requests/blip.js";
-import {Bolklogin} from "/js/classes/requests/bolklogin.js";
-import {URLBuilder} from "/js/classes/helpers/url_builder.js";
-import {Storage} from "/js/classes/helpers/storage.js";
-import {PersonController} from "/js/classes/persons_controller.js";
+import { Blip } from "./classes/api/blip";
+import { Bolklogin } from "./classes/api/bolklogin";
+import { URLBuilder } from "./classes/url_builder";
+import { PersonController } from "./classes/person_controller";
+import { ADDRESSES, Shared } from "./classes/share";
+import { Person } from "./classes/person";
 
-let photo_queue = [];
+let photo_queue: string[] = [];
 
-/**
- * @type {PersonController}
- */
-let personcontroller;
-let filter_timeout;
-let selected_uids = [];
-let bulk_editing = false;
+let personcontroller: PersonController;
+let filter_timeout: number = 0;
+let selected_uids: string[] = [];
+let bulk_editing: boolean = false;
 
-function preload() {
-    console.debug(Storage.APP_REDIRECT_ADDRESS);
-    if ( !Bolklogin.checkLoggedIn() ) return;
+function preload() {    
+    if ( !Bolklogin.is_logged_in() ) return;
 
-    else if ( location.href.startsWith(Storage.APP_LOGOUT_ADDRESS) ) Bolklogin.logout();
+    else if ( location.href.startsWith(ADDRESSES.APP_LOGOUT) ) Bolklogin.logout();
 
-    Bolklogin.checkAuthorization((status, response) => {
+    Bolklogin.check_authorization((status, response) => {
         if (status === 200) {
             console.debug("Login is okay, loading page...");
             load();
@@ -32,9 +29,9 @@ function load() {
     if ( personcontroller === null || personcontroller === undefined ){
 
         console.debug("Populating index page...");
-        Blip.getAll((response) => {
+        Blip.get_all((status, response) => {
 
-            personcontroller = PersonController.fromArray(response);
+            personcontroller = PersonController.from_array(response);
             personcontroller.default_filter();
             filter();
 
@@ -45,29 +42,26 @@ function load() {
         filter();
     }
 
-    document.getElementById("main").href = Storage.APP_ADDRESS;
-
-    document.getElementById('filter_value').onkeydown = filter_timer;
-    set_membership_filter();
-
-    document.getElementById('filter_attribute').oninput = () => {
-        document.getElementById('filter_value').value = '';
+    (document.getElementById("main") as HTMLAnchorElement).href = ADDRESSES.APP;
+    (document.getElementById("filter_value") as HTMLInputElement).onkeydown = filter_timer;
+    (document.getElementById("filter_attribute") as HTMLSelectElement).oninput = () => {
+        (document.getElementById("filter_value") as HTMLInputElement).value = '';
         set_membership_filter();
-    };
+    }
+    (document.getElementById("export") as HTMLAnchorElement).onclick = export_persons;
+    (document.getElementById("bulk_edit") as HTMLAnchorElement).onclick = start_bulk_edit;
+    (document.getElementById("cancel_bulk_edit") as HTMLAnchorElement).onclick = stop_bulk_edit;
 
-    document.getElementById('export').onclick = export_persons;
-
-    document.getElementById('bulk_edit').onclick = startBulkEdit;
-
-    document.getElementById('cancel_bulk_edit').onclick = stopBulkEdit;
+    set_membership_filter();
     
 }
 
 function set_membership_filter() {
-    let input_element = document.getElementById('filter_input');
+    let input_element = document.getElementById("filter_input") as HTMLDivElement;
+    const filter_element = document.getElementById("filter_attribute") as HTMLSelectElement;
 
-    if (document.getElementById('filter_attribute').value === "membership" &&
-        input_element.children.item(0).tagName.toLowerCase() === "input") {
+    if (filter_element !== null && filter_element.value === "membership" &&
+        input_element.firstElementChild?.tagName.toLowerCase() === "input") {
         input_element.innerHTML = "<select id=\"filter_value\">\n" +
             "    <option value=\"member\">Member</option>\n" +
             "    <option value=\"candidate_member\">Candidate member</option>\n" +
@@ -77,12 +71,12 @@ function set_membership_filter() {
             "    <option value=\"honorary_member\">Honorary member</option>\n" +
             "    <option value=\"member_of_merit\">Member of merit</option>\n" +
             "    <option value=\"external\">External</option>\n" +
-            "  </select>"
-        input_element.children.item(0).oninput = filter;
+            "  </select>";
+        (input_element.firstElementChild as HTMLInputElement).oninput = filter;
 
-    } else if (input_element.children.item(0).tagName.toLowerCase() === "select") {
-        input_element.innerHTML = "<input type=\"text\" id=\"filter_value\">"
-        input_element.children.item(0).onkeydown = filter_timer;
+    } else if (input_element.firstElementChild?.tagName.toLowerCase() === "select") {
+        input_element.innerHTML = "<input type=\"text\" id=\"filter_value\">";
+        (input_element.firstElementChild as HTMLInputElement).onkeydown = filter_timer;
     }
 }
 
@@ -94,20 +88,23 @@ function filter_timer() {
 }
 
 function filter(){
-    let attribute = document.getElementById('filter_attribute').value;
-    let filter_string = document.getElementById('filter_value').value;
+    let attribute = (document.getElementById('filter_attribute') as HTMLSelectElement).value;
+    let filter_string = (document.getElementById('filter_value') as HTMLInputElement).value;
 
     if (filter_string !== undefined &&
         filter_string !== null &&
         filter_string.length !== 0) personcontroller.filter(attribute, filter_string);
     else personcontroller.default_filter();
 
-    loadPersons();
+    load_persongrid();
 }
 
-function onclickPerson(event) {
+function onclick_person(event: MouseEvent) {
+    if (event.target === undefined || event.target === null || !(event.target instanceof HTMLElement)) return;
+    
     let person = document.getElementById(event.target.id.replace("_photo", ""));
-    if (bulk_editing === true) {
+
+    if (bulk_editing && person !== null && person !== undefined && person instanceof HTMLAnchorElement) {
         if (person.classList.contains("selected")) {
             person.classList.remove("selected");
             selected_uids = selected_uids.join(" ").replaceAll(person.id, "").replaceAll("  ", " ").trim().split(" ");
@@ -122,9 +119,9 @@ function onclickPerson(event) {
         if (selected_uids.length === 0) {
             innerHTML = "Edit 0 users";
         }
-        document.getElementById("confirm_bulk_edit_p").innerHTML = innerHTML;
+        (document.getElementById("confirm_bulk_edit_p") as HTMLParagraphElement).innerHTML = innerHTML;
 
-        document.getElementById("confirm_bulk_edit").href = new URLBuilder("")
+        (document.getElementById("confirm_bulk_edit") as HTMLAnchorElement).href = new URLBuilder("")
             .path("person")
             .parameter("bulk_edit", selected_uids.join(","))
             .build();
@@ -132,58 +129,57 @@ function onclickPerson(event) {
     }
 }
 
-function loadPersons(){
-    let personsGrid = document.getElementById("personsgrid");
-    personsGrid.innerHTML = "";
-    photo_queue = [];
+function load_persongrid(){
+    Shared.change_element("personsgrid", HTMLDivElement, (personsgrid) => {
+        personsgrid.innerHTML = "";
+        photo_queue = [];
 
-    let persons = personcontroller.getDisplayedPersons();
-    for (let person of persons) {
+        let persons = personcontroller.get_displayed();
+        for (let person of persons) {
+            if (person.uid === undefined || !(person instanceof Person)) continue;
 
-        let link = document.createElement("a");
-        link.href = new URLBuilder("")
-            .path("person")
-            .parameter("uid", person.uid())
-            .build();
+            let link = document.createElement("a");
+            link.href = new URLBuilder("")
+                .path("person")
+                .parameter("uid", person.uid)
+                .build();
 
-        link.id = person.uid();
-        link.onclick = onclickPerson;
-        
-        let src_photo = Storage.BROKEN_IMAGE;
-        if (person.hasPhoto()) src_photo = person.getPhoto();
-        else photo_queue.push(person.uid());
-        
-        link.innerHTML = `<img id="${person.uid()}_photo" alt="${person.get("name")}'s profile photo" src=${src_photo}><h4>${person.get("name")}</h4>`;
-        link.classList.add("person");
-        personsGrid.appendChild(link);
-    }
+            link.id = person.uid;
+            link.onclick = onclick_person;
+            
+            let src_photo: string | Blob = Shared.BROKEN_IMAGE;
+            if (person.has_photo()) src_photo = person.get_photo();
+            else photo_queue.push(person.uid);
+            
+            link.innerHTML = `<img id="${person.uid}_photo" alt="${person.name}'s profile photo" src=${src_photo}><h4>${person.name}</h4>`;
+            link.classList.add("person");
+            personsgrid.appendChild(link);
+        }
+     
+        Shared.change_element("users_num", HTMLParagraphElement, (e) => {
+            if (persons.length === 1) e.innerHTML = "Export 1 user";
+            else e.innerHTML = `Export ${persons.length} users`;
+        });
+    });
 
     if (photo_queue.length > 0) {
         photo_queue = photo_queue.reverse();
-        Blip.getPhotos(photo_queue, (status, response) => {
+        Blip.get_multiple_photos(photo_queue, (status, response: {[key: string]: string}) => {
             if (status == 200) {
-                let json = JSON.parse(response);
-                for (let uid in json) {
-                    let element = document.getElementById(`${uid}_photo`);
-                    if (element === null) continue;
-                    else {
-                        element.src = `data:image/jpeg;base64,${json[uid]}`;
-                    }
-                    let index = photo_queue.indexOf(uid);
-                    personcontroller.get_person(uid).setPhoto(element.src);
-                    photo_queue.splice(index, 1);
+                
+                for (const uid in response) {
+                    Shared.change_element(`${uid}_photo`, HTMLImageElement, (e) => {
+                        e.src = `data:image/jpeg;base64,${response[uid]}`;
+                        const index = photo_queue.indexOf(uid);
+                        personcontroller.get_person(uid)?.set_photo(e.src);
+                        photo_queue.splice(index, 1);
+                    });
                 }
+
             }
             getNextPhoto();
         });
     }
- 
-    if (persons.length === 1) {
-        document.getElementById("users_num").innerHTML = 'Export 1 user';
-    } else {
-        document.getElementById("users_num").innerHTML = `Export ${persons.length} users`;
-    }
-
 }
 
 function getNextPhoto() {
@@ -192,50 +188,74 @@ function getNextPhoto() {
     }
 
     let uid = photo_queue.pop();
-    if (uid === undefined) getNextPhoto();
+    if (uid === undefined) {
+        getNextPhoto();
+        return;
+    }
 
     console.debug(`Requesting ${uid}'s profile photo.`);
     let person = personcontroller.get_person(uid);
 
-    person.fetchPhoto((response) => {
-        if (document.getElementById(`${uid}_photo`) === null) {
-            getNextPhoto();
-            return;
+    if (person === undefined) {
+        getNextPhoto();
+        return;
+    }
+
+    person.fetch_photo((status, response) => {
+        if (status === 200) {
+            let e = document.getElementById(`${uid}_photo`);
+            if (e === null || !(e instanceof HTMLImageElement)) {
+                getNextPhoto();
+                return;
+            }
+            e.src = response;
+            if (photo_queue.length > 0) getNextPhoto();
         }
-        document.getElementById(`${uid}_photo`).src = response;
-        if (photo_queue.length > 0) getNextPhoto();
-    })
+    });
 }
 
-function startBulkEdit() {
+function start_bulk_edit() {
     bulk_editing = true;
 
-    for (let element of ["new_member", "bulk_edit", "filter_input", "filter_attribute", "export"]) {
-        document.getElementById(element).style.display = "none";
+    for (const element of ["new_member", "bulk_edit", "filter_input", "filter_attribute", "export"]) {
+        Shared.change_element(element, HTMLElement, (e) => {
+            e.style.display = "none";
+        });
     }
 
-    document.getElementById("confirm_bulk_edit").style.display = "";
-    document.getElementById("cancel_bulk_edit").style.display = "";
+    for (const element of ["confirm_bulk_edit", "cancel_bulk_edit"]) {
+        Shared.change_element(element, HTMLElement, (e) => {
+            e.style.display = "";
+        });
+    }
 }
 
-function stopBulkEdit() {
+function stop_bulk_edit() {
     bulk_editing = false;
 
-    for (let element of ["new_member", "bulk_edit", "filter_input", "filter_attribute", "export"]) {
-        document.getElementById(element).style.display = "";
+    for (const element of ["new_member", "bulk_edit", "filter_input", "filter_attribute", "export"]) {
+        Shared.change_element(element, HTMLElement, (e) => {
+            e.style.display = "";
+        });
     }
 
-    document.getElementById("confirm_bulk_edit").style.display = "none";
-    document.getElementById("cancel_bulk_edit").style.display = "none";
-
-    for (let element of selected_uids) {
-        document.getElementById(element).classList.remove("selected");
+    for (const element of ["confirm_bulk_edit", "cancel_bulk_edit"]) {
+        Shared.change_element(element, HTMLElement, (e) => {
+            e.style.display = "";
+        });
     }
+
+    for (const element of selected_uids) {
+        Shared.change_element(element, HTMLElement, (e) => {
+            e.classList.remove("selected");
+        });
+    }
+    
     selected_uids = [];
 }
 
 function export_persons() {
-    let csv = personcontroller.toCSV();
+    let csv = personcontroller.to_csv();
     const blob = new File([csv], 'export.csv', {type: 'text/csv;charset=utf-8,'})
     const obj_url = URL.createObjectURL(blob);
     location.replace(obj_url);

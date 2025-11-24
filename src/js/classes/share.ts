@@ -1,25 +1,30 @@
-import {Config} from "/js/config.js";
+import { Config } from "../config";
+import { URLBuilder } from "./url_builder";
 
-export class Storage {
-    static STORAGE = Object.freeze({
-        ACCESS_TOKEN_STORAGE: "idris-access-token",
-        REFRESH_TOKEN_STORAGE: "idris-refresh-token",
-        EXPIRY_TOKEN_STORAGE: "idris-token-expiry",
-        STATE_ID: "stateID",
-        USER_ID: "user_id"
-    });
-    static PARAMETERS = Object.freeze({
-        ACCESS_TOKEN: "access_token",
-        EXPIRES: "expires_in",
-        REFRESH_TOKEN: "refresh_token",
-        USER_ID: "user_id"
-    });
+export enum STORAGE_KEYS {
+    ACCESS_TOKEN_STORAGE = "idris-access-token",
+    REFRESH_TOKEN_STORAGE = "idris-refresh-token",
+    EXPIRY_TOKEN_STORAGE = "idris-token-expiry",
+    STATE_ID = "stateID",
+    USER_ID = "user_id"
+}
 
-    static APP_REDIRECT_ADDRESS = Config.APP_ADDRESS + "/?login";
-    static APP_LOGOUT_ADDRESS = Config.APP_ADDRESS + "/?logout";
-    static APP_ADDRESS = Config.APP_ADDRESS;
-    static LOGIN_ADDRESS = Config.LOGIN_ADDRESS;
-    static BLIP_ADDRESS = Config.BLIP_ADDRESS;
+export enum PARAMETERS {
+    ACCESS_TOKEN = "access_token",
+    EXPIRES = "expires_in",
+    REFRESH_TOKEN = "refresh_token",
+    USER_ID = "user_id"
+}
+
+export const ADDRESSES = {
+    APP: Config.APP_ADDRESS,
+    APP_REDIRECT: new URLBuilder(Config.APP_ADDRESS).path("?login").build(),
+    APP_LOGOUT: new URLBuilder(Config.APP_ADDRESS).path("?logout").build(),
+    AUTH: Config.LOGIN_ADDRESS,
+    BLIP: Config.BLIP_ADDRESS
+} as const;
+
+export class Shared {
 
     static CLIENT_SECRET = Config.CLIENT_SECRET;
     static CLIENT_ID = Config.CLIENT_ID;
@@ -28,21 +33,23 @@ export class Storage {
 
     /**
      * Display an error on the page.
-     * @param {string} message
      */
-    static display_error(message) {
+    static display_error(message: string) {
         this.display_message(message, "error");
     }
 
-    static display_message(message, level = "info") {
+    static display_message(message: string, level: string = "info") {
         let content = document.getElementById("content");
+
         if (content !== null){
             let message_element = document.getElementById('message');
+
             if (message_element === null) {
+
                 message_element = document.createElement('H1');
                 message_element.id = "message";
 
-                if (content.children.length > 0) {
+                if (content.children.length > 0 && content.firstChild !== null) {
                     content.firstChild.before(message_element);
                 } else {
                     content.appendChild(message_element);
@@ -58,7 +65,9 @@ export class Storage {
 
     static remove_message() {
         let content = document.getElementById("content");
+
         if (content !== null) {
+
             let msg = document.getElementById('message');
             if (msg !== null) {
                 msg.remove();
@@ -66,19 +75,25 @@ export class Storage {
         }
     }
 
-    static hasVariable(name) {
+    static has_var(name: string) {
         return sessionStorage.getItem(name) !== null;
     }
 
-    static getVariable(name) {
-        return this.hasVariable(name) ? sessionStorage.getItem(name) : null;
+    static get_var(name: string): any | undefined {
+        return this.has_var(name) ? sessionStorage.getItem(name) : undefined;
     }
 
-    static setVariable(name, value) {
+    static set_var(name: string, value: any) {
         sessionStorage.setItem(name, value.toString());
     }
 
-    static clearStorage() {
+    static clear_storage() {
         sessionStorage.clear();
+    }
+
+    static change_element<T extends HTMLElement>(element_id: string, cls: new (... args: any[]) => T, change: (element: T) => void) {
+        let element = document.getElementById(element_id);
+        if (element !== null && element !== undefined && element instanceof cls) change(element);
+        else console.error(`${element_id} does not exist as an ${cls.name}`);
     }
 }

@@ -58,6 +58,18 @@ input, textarea, select {
     padding: 0.125rem;
     color: inherit;
     box-sizing: content-box;
+    caret-color: auto;
+}
+
+fieldset {
+    display: contents;
+    user-select: none;
+    caret-color: transparent;
+}
+
+fieldset button {
+    font-size: 1.5rem;
+    margin: 0.625rem;
 }
 
 tr:not(thead tr) input[type=text], tr input[type=date], tr textarea, tr select {
@@ -77,6 +89,7 @@ tr {
     font-size: 1.5rem;
     border-left: 2px solid black;
     border-right: 2px solid black;
+    caret-color: transparent;
 }
 
 tr:nth-child(even) {
@@ -140,4 +153,8 @@ a {
 
 .multiple_values {
     filter: brightness(64%);
+}
+
+input .no-cursor {
+    caret-color: transparent;
 }
