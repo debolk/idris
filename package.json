@@ -1,0 +1,16 @@
+{
+  "devDependencies": {
+    "express": "^5.1.0",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "version": "node -e \"import('.build/version.js').then(m => console.log(m.version))\"",
+    "prebuild": "rm -rf build/",
+    "build": "npx tsc",
+    "postbuild": "rsync --mkpath -r --exclude '*.ts' src/* build/",
+    "install": "npm run build",
+    "postinstall": "VERSION=$(npm run -s version) && mkdir -p output && tar --zstd -cf ./output/idris-$VERSION.tar.zst build/* --exclude 'config.js' --transform='s|build|public|'",
+    "dev": "npm run build",
+    "postdev": "node dev-server.js"
+  }
+}
